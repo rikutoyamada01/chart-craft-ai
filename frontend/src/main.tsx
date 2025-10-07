@@ -1,10 +1,10 @@
-import { StrictMode } from "react";
-import ReactDOM from "react-dom/client";
+import { StrictMode } from "react"
+import ReactDOM from "react-dom/client"
 
-import { CustomProvider } from "./components/ui/provider";
-import HomePage from "./routes/index";
+import { CustomProvider } from "./components/ui/provider"
+import HomePage from "./routes/index"
 
-const rootElement = document.getElementById("root");
+const rootElement = document.getElementById("root")
 
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(
@@ -12,6 +12,6 @@ if (rootElement) {
       <CustomProvider>
         <HomePage />
       </CustomProvider>
-    </StrictMode>
-  );
+    </StrictMode>,
+  )
 }
