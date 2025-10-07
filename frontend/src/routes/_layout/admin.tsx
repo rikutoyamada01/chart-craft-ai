@@ -1,3 +1,4 @@
+/*
 import { Badge, Container, Flex, Heading, Table } from "@chakra-ui/react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, useNavigate } from "@tanstack/react-router"
@@ -127,3 +128,4 @@ function Admin() {
     </Container>
   )
 }
+*/

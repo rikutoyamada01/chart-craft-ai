@@ -1,3 +1,4 @@
+/*
 import { Container, Image, Input, Text } from "@chakra-ui/react"
 import {
   createFileRoute,
@@ -110,3 +111,4 @@ function Login() {
     </Container>
   )
 }
+*/

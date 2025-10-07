@@ -1,3 +1,4 @@
+/*
 import { Container, Heading, Tabs } from "@chakra-ui/react"
 import { createFileRoute } from "@tanstack/react-router"
 
@@ -51,3 +52,4 @@ function UserSettings() {
     </Container>
   )
 }
+*/

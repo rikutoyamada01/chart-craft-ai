@@ -1,3 +1,4 @@
+/*
 import { Container, Heading, Input, Text } from "@chakra-ui/react"
 import { useMutation } from "@tanstack/react-query"
 import { createFileRoute, redirect } from "@tanstack/react-router"
@@ -92,3 +93,4 @@ function RecoverPassword() {
     </Container>
   )
 }
+*/
