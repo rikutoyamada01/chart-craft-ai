@@ -9,6 +9,14 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+/**
+ * 回路生成レスポンスのデータモデル（今はダミー）
+ */
+export type CircuitGenerationResponse = {
+    message: string;
+    yaml_data: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -106,6 +114,8 @@ export type ValidationError = {
     msg: string;
     type: string;
 };
+
+export type CircuitsGenerateCircuitResponse = (CircuitGenerationResponse);
 
 export type ItemsReadItemsData = {
     limit?: number;

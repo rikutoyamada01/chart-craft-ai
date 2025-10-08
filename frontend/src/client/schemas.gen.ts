@@ -55,6 +55,23 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const CircuitGenerationResponseSchema = {
+    properties: {
+        message: {
+            type: 'string',
+            title: 'Message'
+        },
+        yaml_data: {
+            type: 'string',
+            title: 'Yaml Data'
+        }
+    },
+    type: 'object',
+    required: ['message', 'yaml_data'],
+    title: 'CircuitGenerationResponse',
+    description: '回路生成レスポンスのデータモデル（今はダミー）'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {

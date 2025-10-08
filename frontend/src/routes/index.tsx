@@ -1,6 +1,6 @@
 import { Box, Button, Code, Heading, Text, Textarea } from "@chakra-ui/react"
 import { useState } from "react"
-import useCustomToast from "./hooks/useCustomToast"
+import useCustomToast from "../hooks/useCustomToast"
 
 export default function HomePage() {
   const [prompt, setPrompt] = useState<string>("")
@@ -49,7 +49,7 @@ export default function HomePage() {
       p={8}
     >
       <Heading as="h1" size="xl" color="gray.800" mb={6}>
-        Circuit Scribe
+        Chat Craft AI
       </Heading>
       <Text fontSize="lg" color="gray.600" mb={8}>
         作りたい回路を文章で説明してください

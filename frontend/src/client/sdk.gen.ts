@@ -3,7 +3,22 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { CircuitsGenerateCircuitResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+
+export class CircuitsService {
+    /**
+     * Generate Circuit
+     * ユーザーからの文章(prompt)を受け取り、回路データを生成するエンドポイント
+     * @returns CircuitGenerationResponse Successful Response
+     * @throws ApiError
+     */
+    public static generateCircuit(): CancelablePromise<CircuitsGenerateCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/circuits/generate'
+        });
+    }
+}
 
 export class ItemsService {
     /**
@@ -18,7 +33,7 @@ export class ItemsService {
     public static readItems(data: ItemsReadItemsData = {}): CancelablePromise<ItemsReadItemsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/',
+            url: '/api/v1/items/items/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -40,7 +55,7 @@ export class ItemsService {
     public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/items/',
+            url: '/api/v1/items/items/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -60,7 +75,7 @@ export class ItemsService {
     public static readItem(data: ItemsReadItemData): CancelablePromise<ItemsReadItemResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/items/items/{id}',
             path: {
                 id: data.id
             },
@@ -82,7 +97,7 @@ export class ItemsService {
     public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/items/items/{id}',
             path: {
                 id: data.id
             },
@@ -105,7 +120,7 @@ export class ItemsService {
     public static deleteItem(data: ItemsDeleteItemData): CancelablePromise<ItemsDeleteItemResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/items/items/{id}',
             path: {
                 id: data.id
             },
@@ -239,6 +254,19 @@ export class UsersService {
     /**
      * Read Users
      * Retrieve users.
+     *
+     * Requires superuser privileges.
+     *
+     * Args:
+     * session: The database session.
+     * skip: The number of items to skip (offset).
+     * limit: The maximum number of items to return (limit).
+     *
+     * Returns:
+     * A dictionary containing a list of users and the total count.
+     *
+     * Raises:
+     * HTTPException: If the current user is not a superuser (handled by dependency).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -248,7 +276,7 @@ export class UsersService {
     public static readUsers(data: UsersReadUsersData = {}): CancelablePromise<UsersReadUsersResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/',
+            url: '/api/v1/users/users/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -262,6 +290,19 @@ export class UsersService {
     /**
      * Create User
      * Create new user.
+     *
+     * Requires superuser privileges.
+     *
+     * Args:
+     * session: The database session.
+     * user_in: The user creation schema.
+     *
+     * Returns:
+     * The newly created user.
+     *
+     * Raises:
+     * HTTPException: If a user with the provided email already exists (status code 400).
+     * HTTPException: If the current user is not a superuser (handled by dependency).
      * @param data The data for the request.
      * @param data.requestBody
      * @returns UserPublic Successful Response
@@ -270,7 +311,7 @@ export class UsersService {
     public static createUser(data: UsersCreateUserData): CancelablePromise<UsersCreateUserResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/',
+            url: '/api/v1/users/users/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -288,7 +329,7 @@ export class UsersService {
     public static readUserMe(): CancelablePromise<UsersReadUserMeResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/me'
+            url: '/api/v1/users/users/me'
         });
     }
     
@@ -301,7 +342,7 @@ export class UsersService {
     public static deleteUserMe(): CancelablePromise<UsersDeleteUserMeResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/users/me'
+            url: '/api/v1/users/users/me'
         });
     }
     
@@ -316,7 +357,7 @@ export class UsersService {
     public static updateUserMe(data: UsersUpdateUserMeData): CancelablePromise<UsersUpdateUserMeResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/me',
+            url: '/api/v1/users/users/me',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -336,7 +377,7 @@ export class UsersService {
     public static updatePasswordMe(data: UsersUpdatePasswordMeData): CancelablePromise<UsersUpdatePasswordMeResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/me/password',
+            url: '/api/v1/users/users/me/password',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -356,7 +397,7 @@ export class UsersService {
     public static registerUser(data: UsersRegisterUserData): CancelablePromise<UsersRegisterUserResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/signup',
+            url: '/api/v1/users/users/signup',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -376,7 +417,7 @@ export class UsersService {
     public static readUserById(data: UsersReadUserByIdData): CancelablePromise<UsersReadUserByIdResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/{user_id}',
+            url: '/api/v1/users/users/{user_id}',
             path: {
                 user_id: data.userId
             },
@@ -398,7 +439,7 @@ export class UsersService {
     public static updateUser(data: UsersUpdateUserData): CancelablePromise<UsersUpdateUserResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/{user_id}',
+            url: '/api/v1/users/users/{user_id}',
             path: {
                 user_id: data.userId
             },
@@ -421,7 +462,7 @@ export class UsersService {
     public static deleteUser(data: UsersDeleteUserData): CancelablePromise<UsersDeleteUserResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/users/{user_id}',
+            url: '/api/v1/users/users/{user_id}',
             path: {
                 user_id: data.userId
             },

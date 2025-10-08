@@ -37,6 +37,19 @@ router = APIRouter(prefix="/users", tags=["users"])
 def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     """
     Retrieve users.
+
+    Requires superuser privileges.
+
+    Args:
+        session: The database session.
+        skip: The number of items to skip (offset).
+        limit: The maximum number of items to return (limit).
+
+    Returns:
+        A dictionary containing a list of users and the total count.
+
+    Raises:
+        HTTPException: If the current user is not a superuser (handled by dependency).
     """
 
     count_statement = select(func.count()).select_from(User)
@@ -45,7 +58,9 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     statement = select(User).offset(skip).limit(limit)
     users = session.exec(statement).all()
 
-    return UsersPublic(data=users, count=count)
+    return UsersPublic(
+        data=[UserPublic.model_validate(user) for user in users], count=count
+    )
 
 
 @router.post(
@@ -54,6 +69,19 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
 def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     """
     Create new user.
+
+    Requires superuser privileges.
+
+    Args:
+        session: The database session.
+        user_in: The user creation schema.
+
+    Returns:
+        The newly created user.
+
+    Raises:
+        HTTPException: If a user with the provided email already exists (status code 400).
+        HTTPException: If the current user is not a superuser (handled by dependency).
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
