@@ -87,7 +87,7 @@ classDiagram
 
     OpenAIEngine, GeminiEngine, YoloCircuitEngine: AIEngineインターフェースの具体的な実装クラスです。新しいAIを追加したい場合は、このインターフェースを実装した新しいクラスを作るだけで済みます。
 
-    FileFormatter (インターフェース): すべての出力形式ジェネレーターが実装すべき共通のインターフェースです。
+    FileFormatter (インターフェース): すべての出力形式ジェネレーターが実装すべき共通のインターフェースです。このインターフェースは `backend/app/services/formatters/base.py` に `FileFormatter` 抽象基底クラスとして実装されています。
 
     FritzingFormatter, KiCadFormatter: FileFormatterインターフェースの具体的な実装クラスです。Draw.ioや他の形式に対応する場合も、同様にクラスを追加します。
 

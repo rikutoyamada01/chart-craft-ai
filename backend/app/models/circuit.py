@@ -1,6 +1,4 @@
-from typing import Any
-
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CircuitGenerationRequest(BaseModel):
@@ -21,6 +19,21 @@ class Position(BaseModel):
     y: int
 
 
+class Port(BaseModel):
+    name: str
+    direction: str | None = None
+
+
+class ComponentProperties(BaseModel):
+    # 他の未知のプロパティ（例: voltage, resistance）も許容する設定
+    model_config = ConfigDict(extra="allow")
+
+    # YAML仕様で定義されているプロパティを明示的に定義し、構造を検証
+    position: Position | None = None
+    rotation: float | None = None
+    ports: list["Port"] | None = None
+
+
 class ConnectionEndpoint(BaseModel):
     component_id: str
     port: str | None = None
@@ -35,7 +48,7 @@ class Connection(BaseModel):
 class Component(BaseModel):
     id: str
     type: str
-    properties: dict[str, Any]
+    properties: ComponentProperties
 
     internal_components: list["Component"] | None = None
     internal_connections: list["Connection"] | None = None

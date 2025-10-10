@@ -2,34 +2,37 @@
 
 `POST /circuits/definitions` で保存された `circuit_yaml` を基に、`GET /circuits/{circuit_id}/render` エンドポイントで実際の回路図を生成し、指定された形式で返却するための実装方針を以下に示します。
 
+この実装は、`architecture.md`で定義された**Strategyパターン**に基づきます。
+
 ### 1. 回路定義のパース
 
-*   **目的**: `circuit_yaml` (YAML形式の文字列) をPythonのデータ構造に変換します。
+*   **目的**: `circuit_yaml` (YAML形式の文字列) を、Pydanticモデルである `CircuitData` オブジェクトに変換します。
 *   **ライブラリ**: `PyYAML` を使用します。
 *   **詳細**:
-    *   `circuit_yaml` を読み込み、`yaml.safe_load()` を使用して辞書またはオブジェクトに変換します。
-    *   パースエラーが発生した場合は、適切なHTTPエラー（例: 400 Bad Request）を返します。
+    *   `circuit_yaml` を読み込み、`yaml.safe_load()` を使用して辞書に変換します。
+    *   その辞書を `CircuitData` モデルに渡して、データのバリデーションと型変換を行います。
+    *   パースやバリデーションでエラーが発生した場合は、適切なHTTPエラー（例: 400 Bad Request）を返します。
 
-### 2. SVG形式での回路図生成
+### 2. FileFormatterによるファイル生成
 
-*   **目的**: パースされた回路定義から、SVG形式の文字列を生成します。これが他の形式への変換の基盤となります。
-*   **ライブラリ**: `svgwrite` を使用して、PythonコードからSVG要素をプログラム的に構築します。
-*   **詳細**:
-    *   `svgwrite.Drawing` オブジェクトを作成し、回路定義に基づいてコンポーネント（抵抗、バッテリーなど）や接続線を描画します。
-    *   回路図のレイアウトアルゴリズム（例: 力指向グラフ描画アルゴリズム、階層型描画アルゴリズムなど）を実装または統合し、コンポーネントの配置と配線を決定します。
-    *   生成されたSVGは文字列として保持されます。
+*   **目的**: パースされた `CircuitData` オブジェクトから、リクエストされた形式のファイル（`FileContent`オブジェクト）を生成します。
+*   **アーキテクチャ**:
+    *   `architecture.md`で定義されている通り、ファイル生成は`FileFormatter`インターフェースを実装した具体的なクラス（フォーマッター）が担当します。
+    *   中心となるサービス（例: `CircuitGeneratorService`）が、リクエストされた`format`（`svg`, `png`など）に応じて適切なフォーマッターを選択し、その`.format(data: CircuitData)`メソッドを呼び出します。
 
-### 3. SVGから他の形式への変換
+#### 具体的なフォーマッターの実装例
 
-*   **目的**: 生成されたSVG文字列を、リクエストされた `format` (PNG, PDF) に変換します。
-*   **ライブラリ**:
-    *   **PNG/PDFへの変換**: `CairoSVG` を使用します。`CairoSVG` はSVGをPNGやPDFに高品質に変換できます。
-*   **詳細**:
-    *   `CairoSVG.svg2png()` または `CairoSVG.svg2pdf()` 関数にSVG文字列を渡し、バイナリデータを取得します。
-    *   `width` および `height` クエリパラメータが指定されている場合は、変換時にこれらのサイズを適用します。
-    *   変換エラーが発生した場合は、適切なHTTPエラー（例: 500 Internal Server Error）を返します。
+*   **`SvgFormatter`**:
+    *   **責務**: `CircuitData`からSVG形式の文字列を生成します。
+    *   **ライブラリ**: `svgwrite` を使用して、Pythonコードからプログラム的にSVG要素を構築します。
+    *   **詳細**: `format`メソッド内で`svgwrite.Drawing`オブジェクトを作成し、`CircuitData`に含まれるコンポーネントや接続線の情報を基にSVGを描画します。
 
-### 4. 必要なライブラリ
+*   **`PngFormatter` / `PdfFormatter`**:
+    *   **責務**: `CircuitData`からPNGやPDF形式のバイナリデータを生成します。
+    *   **ライブラリ**: `CairoSVG` を使用します。
+    *   **詳細**: これらのフォーマッターは、内部でまず`SvgFormatter`を呼び出してSVGデータを生成し、その結果を`CairoSVG.svg2png()`や`CairoSVG.svg2pdf()`に渡して目的の形式に変換する、という実装が考えられます。これにより、描画ロジックの一元化が図れます。
+
+### 3. 必要なライブラリ
 
 上記の実装には、以下のPythonライブラリが必要です。これらは `backend/pyproject.toml` の `dependencies` セクションに追加されます。
 
