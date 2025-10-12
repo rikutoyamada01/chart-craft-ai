@@ -72,11 +72,11 @@ circuit:
 
 回路内のコンポーネント間の接続を定義します。これはオブジェクトのリストです。
 
-*   `from` (object): 接続の開始点。
+*   `source` (object): 接続の開始点。
     *   `component_id` (string): 接続元のコンポーネントの`id`。
     *   `terminal` (string, オプション): コンポーネントの特定の端子名（例: `positive`, `negative`, `anode`, `cathode`, `any`）。
     *   `port` (string, オプション): モジュールの外部ポート名。
-*   `to` (object): 接続の終了点。
+*   `target` (object): 接続の終了点。
     *   `component_id` (string): 接続先のコンポーネントの`id`。
     *   `terminal` (string, オプション): コンポーネントの特定の端子名。
     *   `port` (string, オプション): モジュールの外部ポート名。
@@ -142,12 +142,12 @@ circuit:
           properties:
             position: { x: 50, y: 50 }
       internal_connections:
-        - from: { component_id: "led_driver_module_1", port: "input_power" }
-          to: { component_id: "resistor_internal_1", terminal: "any" }
-        - from: { component_id: "resistor_internal_1", terminal: "other" }
-          to: { component_id: "led_internal_1", terminal: "anode" }
-        - from: { component_id: "led_internal_1", terminal: "cathode" }
-          to: { component_id: "led_driver_module_1", port: "output_led_cathode" }
+        - source: { component_id: "led_driver_module_1", port: "input_power" }
+          target: { component_id: "resistor_internal_1", terminal: "any" }
+        - source: { component_id: "resistor_internal_1", terminal: "other" }
+          target: { component_id: "led_internal_1", terminal: "anode" }
+        - source: { component_id: "led_internal_1", terminal: "cathode" }
+          target: { component_id: "led_driver_module_1", port: "output_led_cathode" }
 
     # 通常のコンポーネント（モジュールから駆動されるLED）
     - id: "external_led_1"
@@ -159,16 +159,16 @@ circuit:
 
   connections:
     # 電源からジャンクションへの接続
-    - from: { component_id: "power_supply_1", port: "VCC" }
-      to: { component_id: "junction_A", terminal: "any" }
+    - source: { component_id: "power_supply_1", port: "VCC" }
+      target: { component_id: "junction_A", terminal: "any" }
 
     # ジャンクションからモジュールへの分岐接続
-    - from: { component_id: "junction_A", terminal: "any" }
-      to: { component_id: "led_driver_module_1", port: "input_power" }
+    - source: { component_id: "junction_A", terminal: "any" }
+      target: { component_id: "led_driver_module_1", port: "input_power" }
 
     # モジュールから外部LEDへの接続
-    - from: { component_id: "led_driver_module_1", port: "output_led_anode" }
-      to: { component_id: "external_led_1", terminal: "anode" }
-    - from: { component_id: "external_led_1", terminal: "cathode" }
-      to: { component_id: "power_supply_1", port: "GND" }
+    - source: { component_id: "led_driver_module_1", port: "output_led_anode" }
+      target: { component_id: "external_led_1", terminal: "anode" }
+    - source: { component_id: "external_led_1", terminal: "cathode" }
+      target: { component_id: "power_supply_1", port: "GND" }
 ```

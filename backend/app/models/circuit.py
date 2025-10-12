@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 
 class CircuitGenerationRequest(BaseModel):
     """回路生成リクエストのデータモデル"""
 
-    prompt: str
+    circuit_yaml: str
 
 
 class CircuitGenerationResponse(BaseModel):
@@ -41,8 +41,8 @@ class ConnectionEndpoint(BaseModel):
 
 
 class Connection(BaseModel):
-    from_node: ConnectionEndpoint = Field(alias="from")
-    to_node: ConnectionEndpoint = Field(alias="to")
+    source: ConnectionEndpoint
+    target: ConnectionEndpoint
 
 
 class Component(BaseModel):
