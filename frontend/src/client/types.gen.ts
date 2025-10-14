@@ -10,11 +10,47 @@ export type Body_login_login_access_token = {
 };
 
 /**
- * 回路生成レスポンスのデータモデル（今はダミー）
+ * Schema for creating a new circuit.
  */
-export type CircuitGenerationResponse = {
-    message: string;
-    yaml_data: string;
+export type CircuitCreate = {
+    name: string;
+    description?: (string | null);
+    content: string;
+};
+
+/**
+ * Request model for the AI prompt-based generation endpoint.
+ */
+export type CircuitGenerateFromPromptRequest = {
+    prompt: string;
+};
+
+/**
+ * Schema for returning a circuit to the client.
+ */
+export type CircuitPublic = {
+    name: string;
+    description?: (string | null);
+    content: string;
+    id: number;
+    created_at: string;
+    updated_at: string;
+};
+
+/**
+ * Request model for the stateless render endpoint.
+ */
+export type CircuitRenderRequest = {
+    content: string;
+};
+
+/**
+ * Schema for updating a circuit (all fields optional).
+ */
+export type CircuitUpdate = {
+    name?: (string | null);
+    description?: (string | null);
+    content?: (string | null);
 };
 
 export type HTTPValidationError = {
@@ -31,11 +67,6 @@ export type ItemPublic = {
     description?: (string | null);
     id: string;
     owner_id: string;
-};
-
-export type ItemsPublic = {
-    data: Array<ItemPublic>;
-    count: number;
 };
 
 export type ItemUpdate = {
@@ -115,14 +146,65 @@ export type ValidationError = {
     type: string;
 };
 
-export type CircuitsGenerateCircuitResponse = (CircuitGenerationResponse);
+export type CircuitsCreateCircuitData = {
+    requestBody: CircuitCreate;
+};
+
+export type CircuitsCreateCircuitResponse = (CircuitPublic);
+
+export type CircuitsReadCircuitsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type CircuitsReadCircuitsResponse = (Array<CircuitPublic>);
+
+export type CircuitsReadCircuitData = {
+    id: number;
+};
+
+export type CircuitsReadCircuitResponse = (CircuitPublic);
+
+export type CircuitsUpdateCircuitData = {
+    id: number;
+    requestBody: CircuitUpdate;
+};
+
+export type CircuitsUpdateCircuitResponse = (CircuitPublic);
+
+export type CircuitsDeleteCircuitData = {
+    id: number;
+};
+
+export type CircuitsDeleteCircuitResponse = (CircuitPublic);
+
+export type CircuitsRenderCircuitStatelessData = {
+    format?: string;
+    requestBody: CircuitRenderRequest;
+};
+
+export type CircuitsRenderCircuitStatelessResponse = (unknown);
+
+export type CircuitsRenderSavedCircuitData = {
+    format?: string;
+    id: number;
+};
+
+export type CircuitsRenderSavedCircuitResponse = (unknown);
+
+export type CircuitsGenerateAndRenderCircuitData = {
+    format?: string;
+    requestBody: CircuitGenerateFromPromptRequest;
+};
+
+export type CircuitsGenerateAndRenderCircuitResponse = (unknown);
 
 export type ItemsReadItemsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ItemsReadItemsResponse = (ItemsPublic);
+export type ItemsReadItemsResponse = (ItemPublic);
 
 export type ItemsCreateItemData = {
     requestBody: ItemCreate;

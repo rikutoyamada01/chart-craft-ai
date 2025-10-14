@@ -4,7 +4,16 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import (
+    Circuit,
+    CircuitCreate,
+    CircuitUpdate,
+    Item,
+    ItemCreate,
+    User,
+    UserCreate,
+    UserUpdate,
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -52,3 +61,44 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def get_circuit(*, session: Session, id: int) -> Circuit | None:
+    statement = select(Circuit).where(Circuit.id == id)
+    circuit = session.exec(statement).first()
+    return circuit
+
+
+def get_multi_circuits(
+    *, session: Session, skip: int = 0, limit: int = 100
+) -> list[Circuit]:
+    statement = select(Circuit).offset(skip).limit(limit)
+    circuits = session.exec(statement).all()
+    return list(circuits)
+
+
+def create_circuit(*, session: Session, circuit_in: CircuitCreate) -> Circuit:
+    db_circuit = Circuit.model_validate(circuit_in)
+    session.add(db_circuit)
+    session.commit()
+    session.refresh(db_circuit)
+    return db_circuit
+
+
+def update_circuit(
+    *, session: Session, db_circuit: Circuit, circuit_in: CircuitUpdate
+) -> Circuit:
+    circuit_data = circuit_in.model_dump(exclude_unset=True)
+    db_circuit.sqlmodel_update(circuit_data)
+    session.add(db_circuit)
+    session.commit()
+    session.refresh(db_circuit)
+    return db_circuit
+
+
+def remove_circuit(*, session: Session, id: int) -> Circuit | None:
+    db_circuit = get_circuit(session=session, id=id)
+    if db_circuit:
+        session.delete(db_circuit)
+        session.commit()
+    return db_circuit

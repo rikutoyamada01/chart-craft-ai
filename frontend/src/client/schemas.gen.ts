@@ -55,21 +55,141 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
-export const CircuitGenerationResponseSchema = {
+export const CircuitCreateSchema = {
     properties: {
-        message: {
+        name: {
             type: 'string',
-            title: 'Message'
+            title: 'Name'
         },
-        yaml_data: {
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        content: {
             type: 'string',
-            title: 'Yaml Data'
+            title: 'Content'
         }
     },
     type: 'object',
-    required: ['message', 'yaml_data'],
-    title: 'CircuitGenerationResponse',
-    description: '回路生成レスポンスのデータモデル（今はダミー）'
+    required: ['name', 'content'],
+    title: 'CircuitCreate',
+    description: 'Schema for creating a new circuit.'
+} as const;
+
+export const CircuitGenerateFromPromptRequestSchema = {
+    properties: {
+        prompt: {
+            type: 'string',
+            title: 'Prompt'
+        }
+    },
+    type: 'object',
+    required: ['prompt'],
+    title: 'CircuitGenerateFromPromptRequest',
+    description: 'Request model for the AI prompt-based generation endpoint.'
+} as const;
+
+export const CircuitPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        content: {
+            type: 'string',
+            title: 'Content'
+        },
+        id: {
+            type: 'integer',
+            title: 'Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['name', 'content', 'id', 'created_at', 'updated_at'],
+    title: 'CircuitPublic',
+    description: 'Schema for returning a circuit to the client.'
+} as const;
+
+export const CircuitRenderRequestSchema = {
+    properties: {
+        content: {
+            type: 'string',
+            title: 'Content'
+        }
+    },
+    type: 'object',
+    required: ['content'],
+    title: 'CircuitRenderRequest',
+    description: 'Request model for the stateless render endpoint.'
+} as const;
+
+export const CircuitUpdateSchema = {
+    properties: {
+        name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Name'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        content: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Content'
+        }
+    },
+    type: 'object',
+    title: 'CircuitUpdate',
+    description: 'Schema for updating a circuit (all fields optional).'
 } as const;
 
 export const HTTPValidationErrorSchema = {
@@ -178,25 +298,6 @@ export const ItemUpdateSchema = {
     },
     type: 'object',
     title: 'ItemUpdate'
-} as const;
-
-export const ItemsPublicSchema = {
-    properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/ItemPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
-        }
-    },
-    type: 'object',
-    required: ['data', 'count'],
-    title: 'ItemsPublic'
 } as const;
 
 export const MessageSchema = {

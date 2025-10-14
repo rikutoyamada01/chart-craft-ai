@@ -1,17 +1,58 @@
+import datetime
+
 from pydantic import BaseModel, ConfigDict
+from sqlmodel import Field, SQLModel
+
+# =================================================================
+# 1. SQLModel for Database Table and API Schemas
+# =================================================================
 
 
-class CircuitGenerationRequest(BaseModel):
-    """回路生成リクエストのデータモデル"""
+class CircuitBase(SQLModel):
+    """Base model with shared attributes for a circuit."""
 
-    circuit_yaml: str
+    name: str = Field(index=True)
+    description: str | None = Field(default=None, index=True)
+    content: str  # The YAML content of the circuit
 
 
-class CircuitGenerationResponse(BaseModel):
-    """回路生成レスポンスのデータモデル（今はダミー）"""
+class Circuit(CircuitBase, table=True):
+    """Database model for a circuit."""
 
-    message: str
-    yaml_data: str
+    id: int | None = Field(default=None, primary_key=True)
+    created_at: datetime.datetime = Field(default_factory=datetime.datetime.utcnow)
+    updated_at: datetime.datetime = Field(
+        default_factory=datetime.datetime.utcnow,
+        sa_column_kwargs={"onupdate": datetime.datetime.utcnow},
+    )
+
+
+class CircuitPublic(CircuitBase):
+    """Schema for returning a circuit to the client."""
+
+    id: int
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
+
+
+class CircuitCreate(CircuitBase):
+    """Schema for creating a new circuit."""
+
+    pass
+
+
+class CircuitUpdate(SQLModel):
+    """Schema for updating a circuit (all fields optional)."""
+
+    name: str | None = None
+    description: str | None = None
+    content: str | None = None
+
+
+# =================================================================
+# 2. Schemas for YAML content structure
+#    (These models define the structure within the 'content' field)
+# =================================================================
 
 
 class Position(BaseModel):
@@ -25,10 +66,7 @@ class Port(BaseModel):
 
 
 class ComponentProperties(BaseModel):
-    # 他の未知のプロパティ（例: voltage, resistance）も許容する設定
     model_config = ConfigDict(extra="allow")
-
-    # YAML仕様で定義されているプロパティを明示的に定義し、構造を検証
     position: Position | None = None
     rotation: float | None = None
     ports: list["Port"] | None = None
@@ -49,7 +87,6 @@ class Component(BaseModel):
     id: str
     type: str
     properties: ComponentProperties
-
     internal_components: list["Component"] | None = None
     internal_connections: list["Connection"] | None = None
 
@@ -57,7 +94,7 @@ class Component(BaseModel):
 Component.model_rebuild()
 
 
-class Circuit(BaseModel):
+class CircuitSpec(BaseModel):
     name: str
     description: str | None = None
     components: list[Component]
@@ -65,4 +102,21 @@ class Circuit(BaseModel):
 
 
 class CircuitData(BaseModel):
-    circuit: Circuit
+    circuit: CircuitSpec
+
+
+# =================================================================
+# 3. Schemas for specific endpoints
+# =================================================================
+
+
+class CircuitRenderRequest(BaseModel):
+    """Request model for the stateless render endpoint."""
+
+    content: str
+
+
+class CircuitGenerateFromPromptRequest(BaseModel):
+    """Request model for the AI prompt-based generation endpoint."""
+
+    prompt: str

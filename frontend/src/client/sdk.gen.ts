@@ -3,19 +3,188 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { CircuitsGenerateCircuitResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { CircuitsCreateCircuitData, CircuitsCreateCircuitResponse, CircuitsReadCircuitsData, CircuitsReadCircuitsResponse, CircuitsReadCircuitData, CircuitsReadCircuitResponse, CircuitsUpdateCircuitData, CircuitsUpdateCircuitResponse, CircuitsDeleteCircuitData, CircuitsDeleteCircuitResponse, CircuitsRenderCircuitStatelessData, CircuitsRenderCircuitStatelessResponse, CircuitsRenderSavedCircuitData, CircuitsRenderSavedCircuitResponse, CircuitsGenerateAndRenderCircuitData, CircuitsGenerateAndRenderCircuitResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class CircuitsService {
     /**
-     * Generate Circuit
-     * ユーザーからの文章(prompt)を受け取り、回路データを生成するエンドポイント
-     * @returns CircuitGenerationResponse Successful Response
+     * Create Circuit
+     * Create new circuit.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns CircuitPublic Successful Response
      * @throws ApiError
      */
-    public static generateCircuit(): CancelablePromise<CircuitsGenerateCircuitResponse> {
+    public static createCircuit(data: CircuitsCreateCircuitData): CancelablePromise<CircuitsCreateCircuitResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/circuits/generate'
+            url: '/api/v1/circuits/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Circuits
+     * Retrieve circuits.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns CircuitPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCircuits(data: CircuitsReadCircuitsData = {}): CancelablePromise<CircuitsReadCircuitsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/circuits/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Circuit
+     * Get circuit by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns CircuitPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCircuit(data: CircuitsReadCircuitData): CancelablePromise<CircuitsReadCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/circuits/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Circuit
+     * Update a circuit.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns CircuitPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateCircuit(data: CircuitsUpdateCircuitData): CancelablePromise<CircuitsUpdateCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/circuits/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Circuit
+     * Delete a circuit.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns CircuitPublic Successful Response
+     * @throws ApiError
+     */
+    public static deleteCircuit(data: CircuitsDeleteCircuitData): CancelablePromise<CircuitsDeleteCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/circuits/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Render Circuit Stateless
+     * Render a circuit diagram from a YAML definition without saving it.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @param data.format
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static renderCircuitStateless(data: CircuitsRenderCircuitStatelessData): CancelablePromise<CircuitsRenderCircuitStatelessResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/circuits/render',
+            query: {
+                format: data.format
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Render Saved Circuit
+     * Render a saved circuit diagram by its ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.format
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static renderSavedCircuit(data: CircuitsRenderSavedCircuitData): CancelablePromise<CircuitsRenderSavedCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/circuits/{id}/render',
+            path: {
+                id: data.id
+            },
+            query: {
+                format: data.format
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Generate And Render Circuit
+     * Generates a YAML from a prompt, renders it, and returns the image.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @param data.format
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static generateAndRenderCircuit(data: CircuitsGenerateAndRenderCircuitData): CancelablePromise<CircuitsGenerateAndRenderCircuitResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/circuits/generate-and-render',
+            query: {
+                format: data.format
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
         });
     }
 }
@@ -27,13 +196,13 @@ export class ItemsService {
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
-     * @returns ItemsPublic Successful Response
+     * @returns ItemPublic Successful Response
      * @throws ApiError
      */
     public static readItems(data: ItemsReadItemsData = {}): CancelablePromise<ItemsReadItemsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/items/',
+            url: '/api/v1/items/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -55,7 +224,7 @@ export class ItemsService {
     public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/items/items/',
+            url: '/api/v1/items/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -75,7 +244,7 @@ export class ItemsService {
     public static readItem(data: ItemsReadItemData): CancelablePromise<ItemsReadItemResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/items/{id}',
+            url: '/api/v1/items/{id}',
             path: {
                 id: data.id
             },
@@ -97,7 +266,7 @@ export class ItemsService {
     public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
         return __request(OpenAPI, {
             method: 'PUT',
-            url: '/api/v1/items/items/{id}',
+            url: '/api/v1/items/{id}',
             path: {
                 id: data.id
             },
@@ -120,7 +289,7 @@ export class ItemsService {
     public static deleteItem(data: ItemsDeleteItemData): CancelablePromise<ItemsDeleteItemResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/items/items/{id}',
+            url: '/api/v1/items/{id}',
             path: {
                 id: data.id
             },
@@ -276,7 +445,7 @@ export class UsersService {
     public static readUsers(data: UsersReadUsersData = {}): CancelablePromise<UsersReadUsersResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/users/',
+            url: '/api/v1/users/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -311,7 +480,7 @@ export class UsersService {
     public static createUser(data: UsersCreateUserData): CancelablePromise<UsersCreateUserResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/users/',
+            url: '/api/v1/users/',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -329,7 +498,7 @@ export class UsersService {
     public static readUserMe(): CancelablePromise<UsersReadUserMeResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/users/me'
+            url: '/api/v1/users/me'
         });
     }
     
@@ -342,7 +511,7 @@ export class UsersService {
     public static deleteUserMe(): CancelablePromise<UsersDeleteUserMeResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/users/users/me'
+            url: '/api/v1/users/me'
         });
     }
     
@@ -357,7 +526,7 @@ export class UsersService {
     public static updateUserMe(data: UsersUpdateUserMeData): CancelablePromise<UsersUpdateUserMeResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/users/me',
+            url: '/api/v1/users/me',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -377,7 +546,7 @@ export class UsersService {
     public static updatePasswordMe(data: UsersUpdatePasswordMeData): CancelablePromise<UsersUpdatePasswordMeResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/users/me/password',
+            url: '/api/v1/users/me/password',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -397,7 +566,7 @@ export class UsersService {
     public static registerUser(data: UsersRegisterUserData): CancelablePromise<UsersRegisterUserResponse> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/v1/users/users/signup',
+            url: '/api/v1/users/signup',
             body: data.requestBody,
             mediaType: 'application/json',
             errors: {
@@ -417,7 +586,7 @@ export class UsersService {
     public static readUserById(data: UsersReadUserByIdData): CancelablePromise<UsersReadUserByIdResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/users/users/{user_id}',
+            url: '/api/v1/users/{user_id}',
             path: {
                 user_id: data.userId
             },
@@ -439,7 +608,7 @@ export class UsersService {
     public static updateUser(data: UsersUpdateUserData): CancelablePromise<UsersUpdateUserResponse> {
         return __request(OpenAPI, {
             method: 'PATCH',
-            url: '/api/v1/users/users/{user_id}',
+            url: '/api/v1/users/{user_id}',
             path: {
                 user_id: data.userId
             },
@@ -462,7 +631,7 @@ export class UsersService {
     public static deleteUser(data: UsersDeleteUserData): CancelablePromise<UsersDeleteUserResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/users/users/{user_id}',
+            url: '/api/v1/users/{user_id}',
             path: {
                 user_id: data.userId
             },
