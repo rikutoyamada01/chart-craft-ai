@@ -74,7 +74,7 @@ def get_multi_circuits(
 ) -> list[Circuit]:
     statement = select(Circuit).offset(skip).limit(limit)
     circuits = session.exec(statement).all()
-    return circuits
+    return list(circuits)
 
 
 def create_circuit(*, session: Session, circuit_in: CircuitCreate) -> Circuit:
