@@ -10,7 +10,7 @@ from app.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate, Me
 router = APIRouter(tags=["items"])
 
 
-@router.get("/", response_model=ItemPublic)
+@router.get("/", response_model=ItemsPublic)
 def read_items(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:

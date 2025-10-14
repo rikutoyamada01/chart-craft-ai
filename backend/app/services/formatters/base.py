@@ -8,6 +8,6 @@ class FileFormatter(ABC):
     @abstractmethod
     def format(self, data: CircuitData) -> FileContent:
         """
-        CircuitDataを受け取り、特定のファイル形式のコンテンツを生成する。
+        CircuitDataを受け取り、指定されたファイル形式のコンテンツを返す。
         """
         pass

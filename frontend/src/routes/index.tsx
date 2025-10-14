@@ -34,7 +34,7 @@ export default function HomePage() {
 
       const svg = await response.text()
       console.log("SVG response text:", svg)
-      const svgDataUrl = `data:image/svg+xml;base64,${btoa(svg)}`
+      const svgDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`
       setResult(svgDataUrl)
     } catch (error) {
       console.error("API呼び出し中にエラーが発生しました:", error)

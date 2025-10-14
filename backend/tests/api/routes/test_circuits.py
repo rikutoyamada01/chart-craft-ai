@@ -25,11 +25,14 @@ def test_save_and_render_circuit(
         - source: {component_id: "j1"}
           target: {component_id: "j2"}
     """
-    # 1. Save the circuit definition
     response = client.post(
-        f"{settings.API_V1_STR}/circuits/definitions",
+        f"{settings.API_V1_STR}/circuits/",
         headers=superuser_token_headers,
-        json={"circuit_yaml": circuit_yaml},
+        json={
+            "name": "Test Circuit",
+            "description": "A test circuit",
+            "content": circuit_yaml,
+        },
     )
     assert response.status_code == 201
     data = response.json()
@@ -67,9 +70,13 @@ def test_render_circuit_unsupported_format(
       connections: []
     """
     response = client.post(
-        f"{settings.API_V1_STR}/circuits/definitions",
+        f"{settings.API_V1_STR}/circuits/",
         headers=superuser_token_headers,
-        json={"circuit_yaml": circuit_yaml},
+        json={
+            "name": "Test Circuit",
+            "description": "A test circuit",
+            "content": circuit_yaml,
+        },
     )
     circuit_id = response.json()["circuit_id"]
 

@@ -15,7 +15,7 @@ from .user import (
     UserUpdateMe,
 )
 
-# 他にもモデルがあるなら同様に書く
+# ここにすべてのモデルをインポート
 # from .user import User
 # from .item import Item
 
@@ -42,4 +42,4 @@ __all__ = [
     "TokenPayload",
     "Message",
     "NewPassword",
-]  # 複数あるなら ["Circuit", "User", ...]
+]  # 必要なものをリストに追加
