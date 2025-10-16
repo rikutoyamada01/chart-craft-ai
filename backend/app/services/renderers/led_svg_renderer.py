@@ -1,39 +1,64 @@
 from svgwrite import Drawing
 
-from app.models.circuit import Component
+from app.models.circuit import Component, Position
 from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class LedSvgRenderer(SvgComponentRenderer):
     def render(self, dwg: Drawing, component: Component) -> None:
         """
-        Renders an LED component.
+        Renders an LED component, applying rotation if specified.
         """
         if component.properties and component.properties.position:
             pos = component.properties.position
-            # Draw the LED body (circle)
-            dwg.add(
-                dwg.circle(center=(pos.x, pos.y), r=10, stroke="black", fill="none")
-            )
-            # Draw two small arrows to indicate light
-            dwg.add(
+            group = dwg.g(transform=f"translate({pos.x}, {pos.y})")
+
+            # Apply rotation if specified
+            if component.properties.rotation is not None:
+                group.rotate(
+                    component.properties.rotation, center=(0, 0)
+                )  # Rotate around its own center (0,0 relative to group)
+
+            # Draw the LED body (circle) at (0,0) relative to group
+            group.add(dwg.circle(center=(0, 0), r=10, stroke="black", fill="none"))
+            # Draw two small arrows to indicate light, relative to group
+            group.add(
                 dwg.line(
-                    start=(pos.x + 8, pos.y - 8),
-                    end=(pos.x + 15, pos.y - 15),
+                    start=(8, -8),
+                    end=(15, -15),
                     stroke="black",
                 )
             )
-            dwg.add(
+            group.add(
                 dwg.line(
-                    start=(pos.x + 12, pos.y - 15),
-                    end=(pos.x + 15, pos.y - 15),
+                    start=(12, -15),
+                    end=(15, -15),
                     stroke="black",
                 )
             )
-            dwg.add(
+            group.add(
                 dwg.line(
-                    start=(pos.x + 15, pos.y - 12),
-                    end=(pos.x + 15, pos.y - 15),
+                    start=(15, -12),
+                    end=(15, -15),
                     stroke="black",
                 )
             )
+            dwg.add(group)
+
+    def get_port_position(self, component: Component, port_name: str) -> Position:
+        """
+        Returns the absolute position of a specific port on the LED.
+        Assumes 'left' (anode) and 'right' (cathode) ports.
+        Rotation is handled by the SvgFormatter when drawing connections.
+        """
+        if not component.properties or not component.properties.position:
+            raise ValueError(f"LED {component.id} has no position defined.")
+
+        pos = component.properties.position
+        # Port positions are relative to the component's center, before rotation
+        if port_name == "left":  # Anode side
+            return Position(x=pos.x - 10, y=pos.y)
+        elif port_name == "right":  # Cathode side
+            return Position(x=pos.x + 10, y=pos.y)
+        else:
+            raise ValueError(f"Unknown port '{port_name}' for LED {component.id}")

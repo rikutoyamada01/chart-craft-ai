@@ -6,7 +6,9 @@ class AiYamlGenerator:
         """
         prompt = prompt.lower()
 
-        if "resistor" in prompt and "led" in prompt:
+        if "transistor switch" in prompt:
+            return self._get_transistor_switch_yaml()
+        elif "resistor" in prompt and "led" in prompt:
             return self._get_resistor_led_yaml()
         elif "resistor" in prompt:
             return self._get_resistor_yaml()
@@ -14,6 +16,48 @@ class AiYamlGenerator:
             return self._get_battery_yaml()
         else:
             return self._get_default_yaml(prompt)
+
+    def _get_transistor_switch_yaml(self) -> str:
+        return """
+circuit:
+  name: "Transistor Switch"
+  components:
+    - id: "batt1"
+      type: "battery"
+      properties:
+        position: {x: 50, y: 50}
+        rotation: 0
+    - id: "r1"
+      type: "resistor"
+      properties:
+        position: {x: 150, y: 50}
+        rotation: 0
+    - id: "led1"
+      type: "led"
+      properties:
+        position: {x: 250, y: 50}
+        rotation: 0
+    - id: "q1"
+      type: "transistor_npn"
+      properties:
+        position: {x: 150, y: 150}
+        rotation: 90
+    - id: "gnd"
+      type: "junction"
+      properties:
+        position: {x: 150, y: 250}
+  connections:
+    - source: {component_id: "batt1", port: "positive"}
+      target: {component_id: "r1", port: "left"}
+    - source: {component_id: "r1", port: "right"}
+      target: {component_id: "led1", port: "left"}
+    - source: {component_id: "led1", port: "right"}
+      target: {component_id: "q1", port: "collector"}
+    - source: {component_id: "batt1", port: "negative"}
+      target: {component_id: "q1", port: "base"}
+    - source: {component_id: "q1", port: "emitter"}
+      target: {component_id: "gnd"}
+"""
 
     def _get_resistor_yaml(self) -> str:
         return """
@@ -24,13 +68,15 @@ circuit:
       type: "resistor"
       properties:
         resistance: "1k"
-        position: { x: 50, y: 50 }
+        position: { x: 100, y: 100 }
+        rotation: 0
     - id: "J1"
       type: "junction"
       properties:
-        position: { x: 50, y: 100 }
+        position: { x: 200, y: 100 }
+        rotation: 0
   connections:
-    - source: { component_id: "R1" }
+    - source: { component_id: "R1", port: "right" }
       target: { component_id: "J1" }
 """
 
@@ -43,14 +89,16 @@ circuit:
       type: "resistor"
       properties:
         resistance: "330"
-        position: { x: 50, y: 50 }
+        position: { x: 100, y: 100 }
+        rotation: 0
     - id: "D1"
       type: "led"
       properties:
-        position: { x: 50, y: 150 }
+        position: { x: 200, y: 100 }
+        rotation: 0
   connections:
-    - source: { component_id: "R1" }
-      target: { component_id: "D1" }
+    - source: { component_id: "R1", port: "right" }
+      target: { component_id: "D1", port: "left" }
 """
 
     def _get_battery_yaml(self) -> str:
@@ -62,7 +110,8 @@ circuit:
       type: "battery"
       properties:
         voltage: "9V"
-        position: { x: 50, y: 50 }
+        position: { x: 100, y: 100 }
+        rotation: 0
   connections: []
 """
 

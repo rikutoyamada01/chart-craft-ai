@@ -1,6 +1,8 @@
+import math
+
 import svgwrite
 
-from app.models.circuit import CircuitData, Component
+from app.models.circuit import CircuitData, Component, Position
 from app.models.file_content import FileContent
 from app.services.formatters.base import FileFormatter
 from app.services.renderers.svg_component_renderer_factory import (
@@ -31,14 +33,32 @@ class SvgFormatter(FileFormatter):
             to_comp = components_by_id.get(connection.target.component_id)
 
             if from_comp and to_comp:
-                if (
-                    from_comp.properties
-                    and from_comp.properties.position
-                    and to_comp.properties
-                    and to_comp.properties.position
-                ):
-                    start_pos = from_comp.properties.position
-                    end_pos = to_comp.properties.position
+                from_renderer = svg_component_renderer_factory.get_renderer(
+                    from_comp.type
+                )
+                to_renderer = svg_component_renderer_factory.get_renderer(to_comp.type)
+
+                start_pos_raw = None
+                end_pos_raw = None
+
+                if from_renderer and connection.source.port:
+                    start_pos_raw = from_renderer.get_port_position(
+                        from_comp, connection.source.port
+                    )
+                elif from_comp.properties and from_comp.properties.position:
+                    start_pos_raw = from_comp.properties.position
+
+                if to_renderer and connection.target.port:
+                    end_pos_raw = to_renderer.get_port_position(
+                        to_comp, connection.target.port
+                    )
+                elif to_comp.properties and to_comp.properties.position:
+                    end_pos_raw = to_comp.properties.position
+
+                start_pos = self._apply_rotation_to_point(from_comp, start_pos_raw)
+                end_pos = self._apply_rotation_to_point(to_comp, end_pos_raw)
+
+                if start_pos and end_pos:
                     dwg.add(
                         dwg.line(
                             start=(start_pos.x, start_pos.y),
@@ -53,3 +73,40 @@ class SvgFormatter(FileFormatter):
             content=svg_content,
             mime_type="image/svg+xml",
         )
+
+    def _apply_rotation_to_point(
+        self, component: Component, point: Position | None
+    ) -> Position | None:
+        """
+        Applies the component's rotation to a given point.
+        """
+        if (
+            not point
+            or not component.properties
+            or component.properties.rotation is None
+        ):
+            return point
+
+        if not component.properties.position:
+            return point  # Rotation center not defined
+
+        cx, cy = component.properties.position.x, component.properties.position.y
+        angle_rad = math.radians(component.properties.rotation)
+
+        # Translate point so component center is at origin
+        translated_x = point.x - cx
+        translated_y = point.y - cy
+
+        # Rotate point
+        rotated_x = translated_x * math.cos(angle_rad) - translated_y * math.sin(
+            angle_rad
+        )
+        rotated_y = translated_x * math.sin(angle_rad) + translated_y * math.cos(
+            angle_rad
+        )
+
+        # Translate point back
+        final_x = rotated_x + cx
+        final_y = rotated_y + cy
+
+        return Position(x=final_x, y=final_y)

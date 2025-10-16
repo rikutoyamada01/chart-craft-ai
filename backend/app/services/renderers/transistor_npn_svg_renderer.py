@@ -1,0 +1,60 @@
+from svgwrite import Drawing
+
+from app.models.circuit import Component, Position
+from app.services.renderers.svg_component_renderer import SvgComponentRenderer
+
+
+class TransistorNpnSvgRenderer(SvgComponentRenderer):
+    def render(self, dwg: Drawing, component: Component) -> None:
+        """
+        Renders an NPN transistor component, applying rotation if specified.
+        """
+        if component.properties and component.properties.position:
+            pos = component.properties.position
+            group = dwg.g(transform=f"translate({pos.x}, {pos.y})")
+
+            # Apply rotation if specified
+            if component.properties.rotation is not None:
+                group.rotate(
+                    component.properties.rotation, center=(0, 0)
+                )  # Rotate around its own center (0,0 relative to group)
+
+            # Draw base line, relative to group
+            group.add(dwg.line(start=(-20, 0), end=(0, 0), stroke="black"))
+            # Draw triangle (emitter/collector), relative to group
+            group.add(
+                dwg.polygon(
+                    points=[(0, -15), (15, 0), (0, 15)], stroke="black", fill="none"
+                )
+            )
+            # Draw collector line, relative to group
+            group.add(dwg.line(start=(0, -15), end=(0, -30), stroke="black"))
+            # Draw emitter line with arrow, relative to group
+            group.add(dwg.line(start=(0, 15), end=(0, 30), stroke="black"))
+            # Emitter arrow (simplified for now), relative to group
+            group.add(dwg.line(start=(0, 30), end=(-5, 25), stroke="black"))
+            group.add(dwg.line(start=(0, 30), end=(5, 25), stroke="black"))
+
+            dwg.add(group)
+
+    def get_port_position(self, component: Component, port_name: str) -> Position:
+        """
+        Returns the absolute position of a specific port on the NPN transistor.
+        Assumes default orientation (base left, collector top, emitter bottom).
+        Rotation will be handled by SvgFormatter when drawing connections.
+        """
+        if not component.properties or not component.properties.position:
+            raise ValueError(f"Transistor {component.id} has no position defined.")
+
+        pos = component.properties.position
+        # Port positions are relative to the component's center, before rotation
+        if port_name == "base":
+            return Position(x=pos.x - 20, y=pos.y)
+        elif port_name == "collector":
+            return Position(x=pos.x, y=pos.y - 30)
+        elif port_name == "emitter":
+            return Position(x=pos.x, y=pos.y + 30)
+        else:
+            raise ValueError(
+                f"Unknown port '{port_name}' for transistor {component.id}"
+            )

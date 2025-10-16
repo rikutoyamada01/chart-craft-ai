@@ -1,0 +1,15 @@
+feat: Enhance dummy YAML generation and renderer capabilities
+
+Update `ai_yaml_generator.py` to produce more practical and complex dummy YAML definitions, including a transistor switch circuit, for improved frontend integration testing.
+
+- Add `_get_transistor_switch_yaml` method and integrate it into the `generate` method.
+- Update existing dummy YAMLs (`_get_resistor_yaml`, `_get_resistor_led_yaml`, `_get_battery_yaml`) to include port and rotation information.
+
+Enhance rendering capabilities to support component rotation and port-specific connections:
+- Add `get_port_position` abstract method to `SvgComponentRenderer`.
+- Implement `get_port_position` in all concrete renderers (`JunctionSvgRenderer`, `ResistorSvgRenderer`, `LedSvgRenderer`, `BatterySvgRenderer`, `TransistorNpnSvgRenderer`).
+- Implement `TransistorNpnSvgRenderer` for the new transistor component.
+- Modify `SvgFormatter` to apply rotation to port positions and use `get_port_position` for accurate connection drawing.
+- Update all component renderers to draw elements within a `g` element and apply rotation transform.
+
+Update `test_svg_formatter.py` to include a new test case for the transistor switch circuit and adjust existing assertions to account for local coordinates within `g` elements.
