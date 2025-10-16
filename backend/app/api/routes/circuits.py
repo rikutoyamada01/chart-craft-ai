@@ -14,12 +14,12 @@ from app.models.circuit import (
     CircuitUpdate,
 )
 from app.services.ai_yaml_generator import ai_yaml_generator
-from app.services.circuit_renderer import circuit_renderer
+from app.services.circuit_exporter import circuit_exporter
 
 router = APIRouter()
 
 
-@router.post("/", response_model=CircuitPublic)
+@router.post("/", response_model=CircuitPublic, status_code=201)
 def create_circuit(
     *, session: Session = Depends(deps.get_db), circuit_in: CircuitCreate
 ) -> Any:
@@ -86,7 +86,7 @@ def render_circuit_stateless(
     """
     Render a circuit diagram from a YAML definition without saving it.
     """
-    file_content = circuit_renderer.render_from_yaml(
+    file_content = circuit_exporter.render_from_yaml(
         yaml_data=request.content, format=format
     )
     return Response(content=file_content.content, media_type=file_content.mime_type)
@@ -103,7 +103,7 @@ def render_saved_circuit(
     if not circuit:
         raise HTTPException(status_code=404, detail="Circuit not found")
 
-    file_content = circuit_renderer.render_from_yaml(
+    file_content = circuit_exporter.render_from_yaml(
         yaml_data=circuit.content, format=format
     )
     return Response(content=file_content.content, media_type=file_content.mime_type)
@@ -120,7 +120,7 @@ def generate_and_render_circuit(
     generated_yaml = ai_yaml_generator.generate(prompt=request.prompt)
 
     # Step 2: Render image from generated YAML
-    file_content = circuit_renderer.render_from_yaml(
+    file_content = circuit_exporter.render_from_yaml(
         yaml_data=generated_yaml, format=format
     )
 

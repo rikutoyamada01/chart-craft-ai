@@ -6,7 +6,7 @@ from app.models.file_content import FileContent
 from app.services.formatters.svg_formatter import SvgFormatter
 
 
-class CircuitRenderer:
+class CircuitExporter:
     def render(self, circuit_data: CircuitData, format: str = "svg") -> FileContent:
         """
         Renders a circuit diagram from CircuitData.
@@ -33,4 +33,4 @@ class CircuitRenderer:
         return self.render(circuit_data, format)
 
 
-circuit_renderer = CircuitRenderer()
+circuit_exporter = CircuitExporter()

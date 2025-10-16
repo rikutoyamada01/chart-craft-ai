@@ -1,5 +1,3 @@
-import uuid
-
 from fastapi.testclient import TestClient
 
 from app.core.config import settings
@@ -36,8 +34,8 @@ def test_save_and_render_circuit(
     )
     assert response.status_code == 201
     data = response.json()
-    assert "circuit_id" in data
-    circuit_id = data["circuit_id"]
+    assert "id" in data
+    circuit_id = data["id"]
 
     # 2. Render the circuit
     response = client.get(
@@ -52,7 +50,7 @@ def test_save_and_render_circuit(
 def test_render_circuit_not_found(
     client: TestClient, superuser_token_headers: dict[str, str]
 ) -> None:
-    random_id = uuid.uuid4()
+    random_id = 999999
     response = client.get(
         f"{settings.API_V1_STR}/circuits/{random_id}/render",
         headers=superuser_token_headers,
@@ -78,7 +76,7 @@ def test_render_circuit_unsupported_format(
             "content": circuit_yaml,
         },
     )
-    circuit_id = response.json()["circuit_id"]
+    circuit_id = response.json()["id"]
 
     response = client.get(
         f"{settings.API_V1_STR}/circuits/{circuit_id}/render?format=png",
