@@ -28,7 +28,9 @@ class BatterySvgRenderer(SvgComponentRenderer):
 
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the battery.
         Assumes 'positive' (left) and 'negative' (right) ports.
@@ -38,8 +40,11 @@ class BatterySvgRenderer(SvgComponentRenderer):
 
         pos = component.properties.position
         if port_name == "positive":
-            return Position(x=pos.x - 15, y=pos.y)
+            return Position(x=pos.x - 15, y=pos.y), "left"
         elif port_name == "negative":
-            return Position(x=pos.x + 15, y=pos.y)
+            return Position(x=pos.x + 15, y=pos.y), "right"
         else:
             raise ValueError(f"Unknown port '{port_name}' for battery {component.id}")
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 30, 20

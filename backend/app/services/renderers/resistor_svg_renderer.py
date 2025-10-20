@@ -30,20 +30,23 @@ class ResistorSvgRenderer(SvgComponentRenderer):
             )
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the resistor.
         Assumes 'left' and 'right' ports.
-        Rotation is handled by the SvgFormatter when drawing connections.
         """
         if not component.properties or not component.properties.position:
             raise ValueError(f"Resistor {component.id} has no position defined.")
 
         pos = component.properties.position
-        # Port positions are relative to the component's center, before rotation
         if port_name == "left":
-            return Position(x=pos.x - 15, y=pos.y)
+            return Position(x=pos.x - 15, y=pos.y), "left"
         elif port_name == "right":
-            return Position(x=pos.x + 15, y=pos.y)
+            return Position(x=pos.x + 15, y=pos.y), "right"
         else:
             raise ValueError(f"Unknown port '{port_name}' for resistor {component.id}")
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 30, 10

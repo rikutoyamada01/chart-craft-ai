@@ -8,6 +8,8 @@ from app.services.formatters.base import FileFormatter
 from app.services.renderers.svg_component_renderer_factory import (
     svg_component_renderer_factory,
 )
+from app.services.routing.a_star import AStarFinder
+from app.services.routing.grid import Grid
 
 
 class SvgFormatter(FileFormatter):
@@ -16,18 +18,21 @@ class SvgFormatter(FileFormatter):
         Generates SVG file content from CircuitData.
         """
         dwg = svgwrite.Drawing(profile="tiny", size=("500px", "500px"))
+        grid = Grid(500, 500, 10)
 
         components_by_id: dict[str, Component] = {
             comp.id: comp for comp in data.circuit.components
         }
 
-        # Draw components
+        # Draw components and add them to the grid as obstacles
         for component in data.circuit.components:
             renderer = svg_component_renderer_factory.get_renderer(component.type)
             if renderer:
                 renderer.render(dwg, component)
+                grid.add_obstacle(component)
 
         # Draw connections
+        finder = AStarFinder(grid)
         for connection in data.circuit.connections:
             from_comp = components_by_id.get(connection.source.component_id)
             to_comp = components_by_id.get(connection.target.component_id)
@@ -40,16 +45,18 @@ class SvgFormatter(FileFormatter):
 
                 start_pos_raw = None
                 end_pos_raw = None
+                start_direction = ""
+                end_direction = ""
 
                 if from_renderer and connection.source.port:
-                    start_pos_raw = from_renderer.get_port_position(
+                    start_pos_raw, start_direction = from_renderer.get_port_position(
                         from_comp, connection.source.port
                     )
                 elif from_comp.properties and from_comp.properties.position:
                     start_pos_raw = from_comp.properties.position
 
                 if to_renderer and connection.target.port:
-                    end_pos_raw = to_renderer.get_port_position(
+                    end_pos_raw, end_direction = to_renderer.get_port_position(
                         to_comp, connection.target.port
                     )
                 elif to_comp.properties and to_comp.properties.position:
@@ -59,13 +66,23 @@ class SvgFormatter(FileFormatter):
                 end_pos = self._apply_rotation_to_point(to_comp, end_pos_raw)
 
                 if start_pos and end_pos:
-                    dwg.add(
-                        dwg.line(
-                            start=(start_pos.x, start_pos.y),
-                            end=(end_pos.x, end_pos.y),
-                            stroke="black",
-                        )
+                    path = finder.find_path(
+                        start_pos, end_pos, start_direction, end_direction
                     )
+                    if path:
+                        points = [
+                            (x * grid.grid_size, y * grid.grid_size) for x, y in path
+                        ]
+                        dwg.add(dwg.polyline(points, stroke="black", fill="none"))
+                    else:
+                        # Fallback to a straight line if no path is found
+                        dwg.add(
+                            dwg.line(
+                                start=(start_pos.x, start_pos.y),
+                                end=(end_pos.x, end_pos.y),
+                                stroke="red",  # Draw in red to indicate a failed route
+                            )
+                        )
 
         svg_content = dwg.tostring()
         return FileContent(

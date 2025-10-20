@@ -26,7 +26,9 @@ class CapacitorSvgRenderer(SvgComponentRenderer):
 
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the capacitor.
         """
@@ -35,8 +37,11 @@ class CapacitorSvgRenderer(SvgComponentRenderer):
 
         pos = component.properties.position
         if port_name == "left":
-            return Position(x=pos.x - 15, y=pos.y)
+            return Position(x=pos.x - 15, y=pos.y), "left"
         elif port_name == "right":
-            return Position(x=pos.x + 15, y=pos.y)
+            return Position(x=pos.x + 15, y=pos.y), "right"
         else:
             raise ValueError(f"Unknown port '{port_name}' for capacitor {component.id}")
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 30, 20

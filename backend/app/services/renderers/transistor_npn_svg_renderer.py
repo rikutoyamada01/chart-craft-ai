@@ -37,24 +37,27 @@ class TransistorNpnSvgRenderer(SvgComponentRenderer):
 
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the NPN transistor.
         Assumes default orientation (base left, collector top, emitter bottom).
-        Rotation will be handled by SvgFormatter when drawing connections.
         """
         if not component.properties or not component.properties.position:
             raise ValueError(f"Transistor {component.id} has no position defined.")
 
         pos = component.properties.position
-        # Port positions are relative to the component's center, before rotation
         if port_name == "base":
-            return Position(x=pos.x - 20, y=pos.y)
+            return Position(x=pos.x - 20, y=pos.y), "left"
         elif port_name == "collector":
-            return Position(x=pos.x, y=pos.y - 30)
+            return Position(x=pos.x, y=pos.y - 30), "up"
         elif port_name == "emitter":
-            return Position(x=pos.x, y=pos.y + 30)
+            return Position(x=pos.x, y=pos.y + 30), "down"
         else:
             raise ValueError(
                 f"Unknown port '{port_name}' for transistor {component.id}"
             )
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 40, 60

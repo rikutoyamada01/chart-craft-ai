@@ -24,12 +24,16 @@ class JunctionSvgRenderer(SvgComponentRenderer):
             )  # Draw at (0,0) relative to group
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the junction.
         For a junction, the port position is its own position.
-        Rotation is handled by the SvgFormatter when drawing connections.
         """
         if component.properties and component.properties.position:
-            return component.properties.position
+            return component.properties.position, "up"
         raise ValueError(f"Junction {component.id} has no position defined.")
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 4, 4

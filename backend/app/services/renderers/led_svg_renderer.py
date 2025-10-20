@@ -45,20 +45,23 @@ class LedSvgRenderer(SvgComponentRenderer):
             )
             dwg.add(group)
 
-    def get_port_position(self, component: Component, port_name: str) -> Position:
+    def get_port_position(
+        self, component: Component, port_name: str
+    ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the LED.
         Assumes 'left' (anode) and 'right' (cathode) ports.
-        Rotation is handled by the SvgFormatter when drawing connections.
         """
         if not component.properties or not component.properties.position:
             raise ValueError(f"LED {component.id} has no position defined.")
 
         pos = component.properties.position
-        # Port positions are relative to the component's center, before rotation
         if port_name == "left":  # Anode side
-            return Position(x=pos.x - 10, y=pos.y)
+            return Position(x=pos.x - 10, y=pos.y), "left"
         elif port_name == "right":  # Cathode side
-            return Position(x=pos.x + 10, y=pos.y)
+            return Position(x=pos.x + 10, y=pos.y), "right"
         else:
             raise ValueError(f"Unknown port '{port_name}' for LED {component.id}")
+
+    def get_bounding_box(self, component: Component) -> tuple[int, int]:
+        return 20, 20
