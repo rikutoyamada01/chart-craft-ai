@@ -10,6 +10,10 @@ class AiYamlGenerator:
             return self._get_transistor_switch_yaml()
         elif "resistor" in prompt and "led" in prompt:
             return self._get_resistor_led_yaml()
+        elif "capacitor" in prompt:
+            return self._get_capacitor_yaml()
+        elif "coil" in prompt:
+            return self._get_coil_yaml()
         elif "resistor" in prompt:
             return self._get_resistor_yaml()
         elif "battery" in prompt:
@@ -110,6 +114,34 @@ circuit:
       type: "battery"
       properties:
         voltage: "9V"
+        position: { x: 100, y: 100 }
+        rotation: 0
+  connections: []
+"""
+
+    def _get_capacitor_yaml(self) -> str:
+        return """
+circuit:
+  name: "Capacitor Circuit"
+  components:
+    - id: "C1"
+      type: "capacitor"
+      properties:
+        capacitance: "100uF"
+        position: { x: 100, y: 100 }
+        rotation: 0
+  connections: []
+"""
+
+    def _get_coil_yaml(self) -> str:
+        return """
+circuit:
+  name: "Coil Circuit"
+  components:
+    - id: "L1"
+      type: "coil"
+      properties:
+        inductance: "10mH"
         position: { x: 100, y: 100 }
         rotation: 0
   connections: []

@@ -1,4 +1,6 @@
 from app.services.renderers.battery_svg_renderer import BatterySvgRenderer
+from app.services.renderers.capacitor_svg_renderer import CapacitorSvgRenderer
+from app.services.renderers.coil_svg_renderer import CoilSvgRenderer
 from app.services.renderers.junction_svg_renderer import JunctionSvgRenderer
 from app.services.renderers.led_svg_renderer import LedSvgRenderer
 from app.services.renderers.resistor_svg_renderer import ResistorSvgRenderer
@@ -16,6 +18,8 @@ class SvgComponentRendererFactory:
             "led": LedSvgRenderer(),
             "battery": BatterySvgRenderer(),
             "transistor_npn": TransistorNpnSvgRenderer(),
+            "capacitor": CapacitorSvgRenderer(),
+            "coil": CoilSvgRenderer(),
         }
 
     def get_renderer(self, component_type: str) -> SvgComponentRenderer | None:

@@ -4,23 +4,21 @@ from app.models.circuit import Component, Position
 from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
-class BatterySvgRenderer(SvgComponentRenderer):
+class CapacitorSvgRenderer(SvgComponentRenderer):
     def render(self, dwg: Drawing, component: Component) -> None:
         """
-        Renders a battery component, applying rotation if specified.
+        Renders a capacitor component.
         """
         if component.properties and component.properties.position:
             pos = component.properties.position
             group = dwg.g(transform=f"translate({pos.x}, {pos.y})")
 
-            # Apply rotation if specified
             if component.properties.rotation is not None:
                 group.rotate(component.properties.rotation, center=(0, 0))
 
-            # Long line for positive terminal
+            # Capacitor plates
             group.add(dwg.line(start=(-2, -10), end=(-2, 10), stroke="black"))
-            # Short line for negative terminal
-            group.add(dwg.line(start=(2, -5), end=(2, 5), stroke="black"))
+            group.add(dwg.line(start=(2, -10), end=(2, 10), stroke="black"))
 
             # Connection leads
             group.add(dwg.line(start=(-15, 0), end=(-2, 0), stroke="black"))
@@ -30,16 +28,15 @@ class BatterySvgRenderer(SvgComponentRenderer):
 
     def get_port_position(self, component: Component, port_name: str) -> Position:
         """
-        Returns the absolute position of a specific port on the battery.
-        Assumes 'positive' (left) and 'negative' (right) ports.
+        Returns the absolute position of a specific port on the capacitor.
         """
         if not component.properties or not component.properties.position:
-            raise ValueError(f"Battery {component.id} has no position defined.")
+            raise ValueError(f"Capacitor {component.id} has no position defined.")
 
         pos = component.properties.position
-        if port_name == "positive":
+        if port_name == "left":
             return Position(x=pos.x - 15, y=pos.y)
-        elif port_name == "negative":
+        elif port_name == "right":
             return Position(x=pos.x + 15, y=pos.y)
         else:
-            raise ValueError(f"Unknown port '{port_name}' for battery {component.id}")
+            raise ValueError(f"Unknown port '{port_name}' for capacitor {component.id}")
