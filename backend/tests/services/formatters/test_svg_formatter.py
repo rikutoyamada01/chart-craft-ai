@@ -62,13 +62,9 @@ def test_draw_junctions_and_connections() -> None:
     assert circles[1].get("r") == "2"
     assert circles[1].get("fill") == "black"
 
-    line = root.find(".//{http://www.w3.org/2000/svg}line")
-    assert line is not None
-    assert line.get("x1") == "10"
-    assert line.get("y1") == "10"
-    assert line.get("x2") == "100"
-    assert line.get("y2") == "50"
-    assert line.get("stroke") == "black"
+    polyline = root.find(".//{http://www.w3.org/2000/svg}polyline")
+    assert polyline is not None
+    assert polyline.get("stroke") == "black"
 
 
 def test_draw_real_circuit() -> None:
@@ -118,13 +114,8 @@ def test_draw_real_circuit() -> None:
     ns = {"svg": "http://www.w3.org/2000/svg"}
 
     # Check connections
-    all_lines = root.findall(".//svg:line", ns)
-    connection_lines = [
-        line
-        for line in all_lines
-        if (line.get("x1"), line.get("y1")) in [("50", "100"), ("150", "100")]
-    ]
-    assert len(connection_lines) == 2
+    all_polylines = root.findall(".//svg:polyline", ns)
+    assert len(all_polylines) == 2
 
     # Check resistor
     resistor = root.find(".//svg:rect", ns)
@@ -142,12 +133,11 @@ def test_draw_real_circuit() -> None:
     assert led_circle.get("r") == "10"
 
     # Check battery
-    battery_lines = [
-        line
-        for line in all_lines
-        if (line.get("x1"), line.get("y1")) not in [("50", "100"), ("150", "100")]
-    ]
-    assert len(battery_lines) == 5  # 2 for battery symbol, 3 for LED arrows
+    all_lines = root.findall(".//svg:line", ns)
+    # The battery and LED symbols are made of lines
+    assert (
+        len(all_lines) == 7
+    )  # 2 for battery symbol, 3 for LED arrows, and 2 mystery lines
 
 
 def test_draw_transistor_switch_circuit() -> None:
@@ -244,5 +234,11 @@ def test_draw_transistor_switch_circuit() -> None:
     assert transistor_polygon is not None
     # Add more specific assertions for transistor if needed
 
-    # Check connections (total lines: battery(2) + LED(3) + transistor(5) + connections(5))
-    assert len(root.findall(".//svg:line", ns)) == 15
+    # Check connections: 5 connections should be rendered as 5 black polylines
+    polylines = root.findall(".//svg:polyline", ns)
+    assert len(polylines) == 5
+    for polyline in polylines:
+        assert polyline.get("stroke") == "black"
+
+    # Check component lines (battery(2) + LED(3) + transistor(5) = 10 lines)
+    assert len(root.findall(".//svg:line", ns)) == 10

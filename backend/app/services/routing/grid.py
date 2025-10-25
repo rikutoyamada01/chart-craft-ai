@@ -5,13 +5,20 @@ from app.services.renderers.svg_component_renderer_factory import (
 
 
 class Grid:
-    def __init__(self, width: int, height: int, grid_size: int):
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        grid_size: int,
+        port_positions: set[tuple[int, int]] | None = None,
+    ):
         self.width = width
         self.height = height
         self.grid_size = grid_size
         self.grid_width = width // grid_size
         self.grid_height = height // grid_size
         self.obstacles: set[tuple[int, int]] = set()
+        self.port_positions = port_positions if port_positions is not None else set()
 
     def add_obstacle(self, component: Component, margin: int = 1):
         """
@@ -42,6 +49,8 @@ class Grid:
 
     def is_obstacle(self, x: int, y: int) -> bool:
         """
-        Checks if a grid cell is an obstacle.
+        Checks if a grid cell is an obstacle, allowing ports to be non-obstacles.
         """
+        if (x, y) in self.port_positions:
+            return False
         return (x, y) in self.obstacles

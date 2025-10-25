@@ -18,11 +18,49 @@ class SvgFormatter(FileFormatter):
         Generates SVG file content from CircuitData.
         """
         dwg = svgwrite.Drawing(profile="tiny", size=("500px", "500px"))
-        grid = Grid(500, 500, 10)
+        current_grid_size = 5  # Use a variable for grid_size
 
+        all_port_grid_positions: set[tuple[int, int]] = set()
         components_by_id: dict[str, Component] = {
             comp.id: comp for comp in data.circuit.components
         }
+
+        # Collect all port positions first
+        for component in data.circuit.components:
+            renderer = svg_component_renderer_factory.get_renderer(component.type)
+            if renderer:
+                # Assuming a component can have multiple ports, we need to iterate
+                # For simplicity, let's assume 'left', 'right', 'up', 'down' ports exist if applicable
+                # This part might need more sophisticated logic based on actual port definitions
+                for port_name in [
+                    "left",
+                    "right",
+                    "up",
+                    "down",
+                    "positive",
+                    "negative",
+                    "base",
+                    "collector",
+                    "emitter",
+                ]:
+                    try:
+                        port_pos_raw, _ = renderer.get_port_position(
+                            component, port_name
+                        )
+                        port_pos = self._apply_rotation_to_point(
+                            component, port_pos_raw
+                        )
+                        if port_pos:
+                            all_port_grid_positions.add(
+                                (
+                                    port_pos.x // current_grid_size,
+                                    port_pos.y // current_grid_size,
+                                )
+                            )
+                    except ValueError:  # Port might not exist for this component
+                        pass
+
+        grid = Grid(500, 500, current_grid_size, all_port_grid_positions)
 
         # Draw components and add them to the grid as obstacles
         for component in data.circuit.components:
@@ -73,6 +111,10 @@ class SvgFormatter(FileFormatter):
                         points = [
                             (x * grid.grid_size, y * grid.grid_size) for x, y in path
                         ]
+                        # Correct the start and end points to align perfectly with the ports
+                        if points:
+                            points[0] = (start_pos.x, start_pos.y)
+                            points[-1] = (end_pos.x, end_pos.y)
                         dwg.add(dwg.polyline(points, stroke="black", fill="none"))
                     else:
                         # Fallback to a straight line if no path is found

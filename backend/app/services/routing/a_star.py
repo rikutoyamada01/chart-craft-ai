@@ -24,11 +24,32 @@ class AStarFinder:
             end_pos.y // self.grid.grid_size,
         )
 
-        # Bounding box for the search
-        min_x = min(start_node[0], end_node[0])
-        max_x = max(start_node[0], end_node[0])
-        min_y = min(start_node[1], end_node[1])
-        max_y = max(start_node[1], end_node[1])
+        # Ensure the start and end nodes and their immediate neighbors in the exit direction are walkable
+        nodes_to_clear = {start_node, end_node}
+
+        def get_neighbor(node, direction):
+            x, y = node
+            if direction == "up":
+                return (x, y - 1)
+            if direction == "down":
+                return (x, y + 1)
+            if direction == "left":
+                return (x - 1, y)
+            if direction == "right":
+                return (x + 1, y)
+            return None
+
+        start_neighbor = get_neighbor(start_node, start_direction)
+        if start_neighbor:
+            nodes_to_clear.add(start_neighbor)
+
+        end_neighbor = get_neighbor(end_node, end_direction)
+        if end_neighbor:
+            nodes_to_clear.add(end_neighbor)
+
+        for node in nodes_to_clear:
+            if node in self.grid.obstacles:
+                self.grid.obstacles.remove(node)
 
         open_set: list[tuple[float, tuple[int, int]]] = []
         heapq.heappush(open_set, (0, start_node))
@@ -56,12 +77,6 @@ class AStarFinder:
                     current, neighbor, came_from[current]
                 )
 
-                # Bounding box penalty
-                if not (
-                    min_x <= neighbor[0] <= max_x and min_y <= neighbor[1] <= max_y
-                ):
-                    tentative_g_score += 1  # Penalty for going outside the bounding box
-
                 if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
                     came_from[neighbor] = current
                     g_score[neighbor] = tentative_g_score
@@ -74,22 +89,41 @@ class AStarFinder:
         self, node: tuple[int, int], direction: str | None = None
     ) -> list[tuple[int, int]]:
         x, y = node
+        possible_neighbors = []
+
         if direction:
+            # Try the preferred direction first
             if direction == "up":
-                neighbors = [(x, y - 1)]
+                preferred_neighbor = (x, y - 1)
             elif direction == "down":
-                neighbors = [(x, y + 1)]
+                preferred_neighbor = (x, y + 1)
             elif direction == "left":
-                neighbors = [(x - 1, y)]
+                preferred_neighbor = (x - 1, y)
             elif direction == "right":
-                neighbors = [(x + 1, y)]
+                preferred_neighbor = (x + 1, y)
             else:
-                neighbors = []
+                preferred_neighbor = None
+
+            if (
+                preferred_neighbor
+                and 0 <= preferred_neighbor[0] < self.grid.grid_width
+                and 0 <= preferred_neighbor[1] < self.grid.grid_height
+                and not self.grid.is_obstacle(
+                    preferred_neighbor[0], preferred_neighbor[1]
+                )
+            ):
+                possible_neighbors.append(preferred_neighbor)
+            else:
+                # If preferred is blocked or invalid, consider all directions
+                possible_neighbors.extend(
+                    [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+                )
         else:
-            neighbors = [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
+            possible_neighbors.extend([(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)])
+
         return [
             n
-            for n in neighbors
+            for n in possible_neighbors
             if 0 <= n[0] < self.grid.grid_width and 0 <= n[1] < self.grid.grid_height
         ]
 
@@ -99,18 +133,20 @@ class AStarFinder:
         neighbor: tuple[int, int],
         parent: tuple[int, int] | None,
     ) -> float:
-        cost = 1  # Base cost
+        if parent is None:
+            return 1.0  # No parent, no turn
 
-        # Turn penalty
-        if parent:
-            dx1 = current[0] - parent[0]
-            dy1 = current[1] - parent[1]
-            dx2 = neighbor[0] - current[0]
-            dy2 = neighbor[1] - current[1]
-            if dx1 != dx2 or dy1 != dy2:
-                cost += 1  # Add penalty for turning
+        # Get the direction of movement
+        dx1 = current[0] - parent[0]
+        dy1 = current[1] - parent[1]
+        dx2 = neighbor[0] - current[0]
+        dy2 = neighbor[1] - current[1]
 
-        return cost
+        # Check if the direction has changed
+        if dx1 != dx2 or dy1 != dy2:
+            return 1.5  # Penalize for turning
+
+        return 1.0  # Cost for moving straight
 
     def _heuristic(self, node: tuple[int, int], end_node: tuple[int, int]) -> float:
         # Manhattan distance
