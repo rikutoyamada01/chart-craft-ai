@@ -19,13 +19,17 @@ class ResistorSvgRenderer(SvgComponentRenderer):
                     component.properties.rotation, center=(0, 0)
                 )  # Rotate around its own center (0,0 relative to group)
 
+            # Connection leads
+            group.add(dwg.line(start=(-25, 0), end=(-15, 0), stroke="black"))
+            group.add(dwg.line(start=(15, 0), end=(25, 0), stroke="black"))
+
             # Draw a simple rectangle for the resistor body at (0,0) relative to group
             group.add(
                 dwg.rect(
                     insert=(-15, -5),  # Relative to component center
                     size=(30, 10),
                     stroke="black",
-                    fill="none",
+                    fill="white",
                 )
             )
             dwg.add(group)
@@ -42,11 +46,11 @@ class ResistorSvgRenderer(SvgComponentRenderer):
 
         pos = component.properties.position
         if port_name == "left":
-            return Position(x=pos.x - 15, y=pos.y), "left"
+            return Position(x=pos.x - 25, y=pos.y), "left"
         elif port_name == "right":
-            return Position(x=pos.x + 15, y=pos.y), "right"
+            return Position(x=pos.x + 25, y=pos.y), "right"
         else:
             raise ValueError(f"Unknown port '{port_name}' for resistor {component.id}")
 
     def get_bounding_box(self, component: Component) -> tuple[int, int]:
-        return 30, 10
+        return 50, 10

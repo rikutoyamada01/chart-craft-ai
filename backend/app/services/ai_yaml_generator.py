@@ -6,6 +6,8 @@ class AiYamlGenerator:
         """
         prompt = prompt.lower()
 
+        if "realistic" in prompt:
+            return self._get_realistic_test_circuit_yaml()
         if "transistor switch" in prompt:
             return self._get_transistor_switch_yaml()
         elif "resistor" in prompt and "led" in prompt:
@@ -21,6 +23,73 @@ class AiYamlGenerator:
         else:
             return self._get_default_yaml(prompt)
 
+    def _get_realistic_test_circuit_yaml(self) -> str:
+        # NOTE: This circuit avoids using rotation on components because the current
+        # implementation of the renderers' get_port_position method does not
+        # dynamically calculate port positions based on the rotation angle.
+        # Using rotation would lead to incorrect wiring visuals.
+        return """
+circuit:
+  name: "Realistic Transistor LED Switch"
+  components:
+    - id: "vcc"
+      type: "battery"
+      properties:
+        position: {x: 200, y: 50}
+    - id: "gnd"
+      type: "junction"
+      properties:
+        position: {x: 200, y: 350}
+    - id: "q1"
+      type: "transistor_npn"
+      properties:
+        position: {x: 300, y: 200}
+    - id: "r_led"
+      type: "resistor"
+      properties:
+        position: {x: 400, y: 100}
+        rotation: 90
+    - id: "led1"
+      type: "led"
+      properties:
+        position: {x: 400, y: 200}
+    - id: "r_base"
+      type: "resistor"
+      properties:
+        position: {x: 200, y: 200}
+    - id: "j_in"
+      type: "junction"
+      properties:
+        position: {x: 100, y: 200}
+    - id: "j_vcc"
+      type: "junction"
+      properties:
+        position: {x: 400, y: 50}
+
+  connections:
+    # Power connections
+    - source: {component_id: "vcc", port: "positive"}
+      target: {component_id: "j_vcc"}
+    - source: {component_id: "vcc", port: "negative"}
+      target: {component_id: "gnd"}
+    - source: {component_id: "q1", port: "emitter"}
+      target: {component_id: "gnd"}
+
+    # Input signal path
+    - source: {component_id: "j_in"}
+      target: {component_id: "r_base", port: "left"}
+    - source: {component_id: "r_base", port: "right"}
+      target: {component_id: "q1", port: "base"}
+
+    # Output LED path
+    - source: {component_id: "j_vcc"}
+      target: {component_id: "r_led", port: "left"}
+    - source: {component_id: "r_led", port: "right"}
+      target: {component_id: "led1", port: "left"}
+    - source: {component_id: "led1", port: "right"}
+      target: {component_id: "q1", port: "collector"}
+"""
+
     def _get_transistor_switch_yaml(self) -> str:
         return """
 circuit:
@@ -34,22 +103,22 @@ circuit:
     - id: "r1"
       type: "resistor"
       properties:
-        position: {x: 150, y: 50}
+        position: {x: 200, y: 50}
         rotation: 0
     - id: "led1"
       type: "led"
       properties:
-        position: {x: 250, y: 50}
+        position: {x: 350, y: 50}
         rotation: 0
     - id: "q1"
       type: "transistor_npn"
       properties:
-        position: {x: 150, y: 150}
+        position: {x: 200, y: 200}
         rotation: 90
     - id: "gnd"
       type: "junction"
       properties:
-        position: {x: 150, y: 250}
+        position: {x: 200, y: 350}
   connections:
     - source: {component_id: "batt1", port: "positive"}
       target: {component_id: "r1", port: "left"}
