@@ -6,6 +6,17 @@ from app.services.routing.grid import Grid
 
 logger = logging.getLogger(__name__)
 
+# --- Cost Function Constants ---
+COST_BASE = 1.0
+PENALTY_ADJACENT_TO_OBSTACLE = 1000.0
+PENALTY_PREFERRED_DIRECTION = 500.0
+PENALTY_TURN = 100.0
+PENALTY_TURN_NEAR_END = 1000.0
+PENALTY_SOFT_OBSTACLE = 50.0
+PENALTY_MACRO_DIRECTION = 20.0
+PROXIMITY_SCAN_RADIUS = 3
+PROXIMITY_PENALTY_WEIGHT = 20.0
+
 
 class AStarFinder:
     def __init__(self, grid: Grid):
@@ -148,7 +159,7 @@ class AStarFinder:
         Calculate cost to move to a neighbor cell based on a strict priority hierarchy.
         """
         # 1. Base movement cost
-        cost = 1.0
+        cost = COST_BASE
 
         # 2. Ultra-high penalty for immediate proximity to hard obstacles (1000s magnitude)
         is_adjacent_to_obstacle = False
@@ -162,7 +173,7 @@ class AStarFinder:
             if is_adjacent_to_obstacle:
                 break
         if is_adjacent_to_obstacle:
-            cost += 1000.0
+            cost += PENALTY_ADJACENT_TO_OBSTACLE
 
         # 3. Very high penalty for not following preferred direction at the start (500s magnitude)
         if parent is None and preferred_direction:
@@ -179,7 +190,7 @@ class AStarFinder:
                 is_moving_preferred = True
 
             if not is_moving_preferred:
-                cost += 500.0
+                cost += PENALTY_PREFERRED_DIRECTION
 
         # 4. High penalty for turning (100s magnitude), with extreme penalty near the end node
         if parent is not None:
@@ -190,15 +201,15 @@ class AStarFinder:
 
             is_straight = dx1 == dx2 and dy1 == dy2
             if not is_straight:
-                turn_penalty = 100.0
+                turn_penalty = PENALTY_TURN
                 # If close to the end node, make turning extremely expensive to prevent overshooting
                 if self._heuristic(current, end_node) <= 2:
-                    turn_penalty = 1000.0
+                    turn_penalty = PENALTY_TURN_NEAR_END
                 cost += turn_penalty
 
         # 5. Medium penalty for crossing existing wires (soft obstacles)
         if self.grid.is_soft_obstacle(neighbor[0], neighbor[1]):
-            cost += 50.0
+            cost += PENALTY_SOFT_OBSTACLE
 
         # 6. Penalty for moving against the dominant direction to the goal (10s magnitude)
         total_dx = abs(current[0] - end_node[0])
@@ -215,18 +226,18 @@ class AStarFinder:
                 if move_dy != 0:  # Penalize vertical movement
                     # Penalty is larger when the path is almost purely horizontal (dy is small compared to dx)
                     ratio = total_dy / total_dx
-                    macro_direction_penalty = 20.0 * (1 - ratio)
+                    macro_direction_penalty = PENALTY_MACRO_DIRECTION * (1 - ratio)
             else:  # Path is more vertical than horizontal (or equal)
                 if move_dx != 0:  # Penalize horizontal movement
                     # Penalty is larger when the path is almost purely vertical (dx is small compared to dy)
                     if total_dy > 0:  # Avoid division by zero if total_dy is 0
                         ratio = total_dx / total_dy
-                        macro_direction_penalty = 20.0 * (1 - ratio)
+                        macro_direction_penalty = PENALTY_MACRO_DIRECTION * (1 - ratio)
 
         cost += macro_direction_penalty
 
         # 7. Low penalty for proximity to medium-range obstacles (1-20s magnitude)
-        scan_radius = 3  # Scan a 7x7 area
+        scan_radius = PROXIMITY_SCAN_RADIUS  # Scan a 7x7 area
         proximity_penalty = 0.0
         for dx in range(-scan_radius, scan_radius + 1):
             for dy in range(-scan_radius, scan_radius + 1):
@@ -238,7 +249,7 @@ class AStarFinder:
                 check_x, check_y = neighbor[0] + dx, neighbor[1] + dy
                 if self.grid.is_hard_obstacle(check_x, check_y):
                     # Penalty is inversely proportional to distance, ensuring it's a low-priority cost
-                    proximity_penalty += 20.0 / (distance**2)
+                    proximity_penalty += PROXIMITY_PENALTY_WEIGHT / (distance**2)
 
         cost += proximity_penalty
 

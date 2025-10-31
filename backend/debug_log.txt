@@ -1,0 +1,147 @@
+warning: The `tool.uv.dev-dependencies` field (used in `pyproject.toml`) is deprecated and will be removed in a future release; use `dependency-groups.dev` instead
+============================= test session starts =============================
+platform win32 -- Python 3.12.10, pytest-7.4.4, pluggy-1.5.0
+rootdir: C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend
+plugins: anyio-4.6.0
+collected 1 item
+
+tests\services\formatters\test_svg_formatter.py WARNING:passlib.handlers.bcrypt:(trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+F
+
+================================== FAILURES ===================================
+_____________________ test_draw_transistor_switch_circuit _____________________
+
+    def test_draw_transistor_switch_circuit() -> None:
+        """
+        Test that a transistor switch circuit with rotation and port connections is drawn correctly.
+        """
+        components = [
+            Component(
+                id="batt1",
+                type="battery",
+                properties=ComponentProperties(position=Position(x=50, y=50), rotation=0),
+            ),
+            Component(
+                id="r1",
+                type="resistor",
+                properties=ComponentProperties(position=Position(x=150, y=50), rotation=0),
+            ),
+            Component(
+                id="led1",
+                type="led",
+                properties=ComponentProperties(position=Position(x=250, y=50), rotation=0),
+            ),
+            Component(
+                id="q1",
+                type="transistor_npn",
+                properties=ComponentProperties(
+                    position=Position(x=150, y=150), rotation=90
+                ),
+            ),
+            Component(
+                id="gnd",
+                type="junction",
+                properties=ComponentProperties(position=Position(x=150, y=250), rotation=0),
+            ),
+        ]
+        connections = [
+            Connection(
+                source=ConnectionEndpoint(component_id="batt1", port="positive"),
+                target=ConnectionEndpoint(component_id="r1", port="left"),
+            ),
+            Connection(
+                source=ConnectionEndpoint(component_id="r1", port="right"),
+                target=ConnectionEndpoint(component_id="led1", port="left"),
+            ),
+            Connection(
+                source=ConnectionEndpoint(component_id="led1", port="right"),
+                target=ConnectionEndpoint(component_id="q1", port="collector"),
+            ),
+            Connection(
+                source=ConnectionEndpoint(component_id="batt1", port="negative"),
+                target=ConnectionEndpoint(component_id="q1", port="base"),
+            ),
+            Connection(
+                source=ConnectionEndpoint(component_id="q1", port="emitter"),
+                target=ConnectionEndpoint(component_id="gnd"),
+            ),
+        ]
+        circuit_spec = CircuitSpec(
+            name="Transistor Switch",
+            components=components,
+            connections=connections,
+        )
+        circuit_data = CircuitData(circuit=circuit_spec)
+
+        formatter = SvgFormatter()
+        file_content = formatter.format(circuit_data)
+
+        svg_content = file_content.content
+        root = ET.fromstring(svg_content)
+
+        ns = {"svg": "http://www.w3.org/2000/svg"}
+
+        # Check for components
+        assert len(root.findall(".//svg:g", ns)) == 5  # 5 components, each in a group
+
+        resistor = root.find(".//svg:rect", ns)
+        assert resistor is not None
+        assert resistor.get("x") == str(-15)
+        assert resistor.get("y") == str(-5)
+        assert resistor.get("width") == "30"
+        assert resistor.get("height") == "10"
+
+        led_circle = [c for c in root.findall(".//svg:circle", ns) if c.get("r") == "10"][0]
+        assert led_circle.get("cx") == "0"
+        assert led_circle.get("cy") == "0"
+
+        junction_circle = [
+            c for c in root.findall(".//svg:circle", ns) if c.get("r") == "2"
+        ][0]
+        assert junction_circle.get("cx") == "0"
+        assert junction_circle.get("cy") == "0"
+
+        transistor_polygon = root.find(".//svg:polygon", ns)
+        assert transistor_polygon is not None
+        # Add more specific assertions for transistor if needed
+
+        # Check connections: 5 connections should be rendered as 5 black polylines
+        polylines = root.findall(".//svg:polyline", ns)
+>       assert len(polylines) == 5
+E       AssertionError: assert 4 == 5
+E        +  where 4 = len([<Element '{http://www.w3.org/2000/svg}polyline' at 0x000002CBF6C67BF0>, <Element '{http://www.w3.org/2000/svg}polylin....org/2000/svg}polyline' at 0x000002CBF6C67D30>, <Element '{http://www.w3.org/2000/svg}polyline' at 0x000002CBF6C67D80>])
+
+tests\services\formatters\test_svg_formatter.py:239: AssertionError
+----------------------------- Captured log setup ------------------------------
+WARNING  passlib.handlers.bcrypt:bcrypt.py:622 (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\.venv\Lib\site-packages\passlib\handlers\bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+              ^^^^^^^^^^^^^^^^^
+AttributeError: module 'bcrypt' has no attribute '__about__'
+============================== warnings summary ===============================
+.venv\Lib\site-packages\starlette\formparsers.py:12
+  C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\.venv\Lib\site-packages\starlette\formparsers.py:12: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+app\core\config.py:104
+  C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\app\core\config.py:104: UserWarning: The value of SECRET_KEY is "changethis", for security, please change it, at least for deployments.
+    warnings.warn(message, stacklevel=1)
+
+app\core\config.py:104
+  C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\app\core\config.py:104: UserWarning: The value of POSTGRES_PASSWORD is "changethis", for security, please change it, at least for deployments.
+    warnings.warn(message, stacklevel=1)
+
+app\core\config.py:104
+  C:\Users\yamadarikuto\Mycode\chart-craft-ai\backend\app\core\config.py:104: UserWarning: The value of FIRST_SUPERUSER_PASSWORD is "changethis", for security, please change it, at least for deployments.
+    warnings.warn(message, stacklevel=1)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/services/formatters/test_svg_formatter.py::test_draw_transistor_switch_circuit
+======================== 1 failed, 4 warnings in 0.60s ========================

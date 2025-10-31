@@ -65,19 +65,17 @@ class Grid:
 
         # Soft obstacles (safety zone beyond hard obstacles) - HIGH COST but passable
 
-        # Add soft obstacles around the hard obstacles
-        for x in range(start_grid_x_hard, end_grid_x_hard):
-            for y in range(start_grid_y_hard, end_grid_y_hard):
-                # Add surrounding cells as soft obstacles
-                for dx in range(-soft_margin, soft_margin + 1):
-                    for dy in range(-soft_margin, soft_margin + 1):
-                        nx, ny = x + dx, y + dy
-                        if (
-                            0 <= nx < self.grid_width
-                            and 0 <= ny < self.grid_height
-                            and (nx, ny) not in self.hard_obstacles
-                        ):
-                            self.soft_obstacles.add((nx, ny))
+        # Efficiently add soft obstacles by calculating the outer boundary once
+        if soft_margin > 0:
+            start_grid_x_soft = max(0, start_grid_x_hard - soft_margin)
+            end_grid_x_soft = min(self.grid_width, end_grid_x_hard + soft_margin)
+            start_grid_y_soft = max(0, start_grid_y_hard - soft_margin)
+            end_grid_y_soft = min(self.grid_height, end_grid_y_hard + soft_margin)
+
+            for x in range(start_grid_x_soft, end_grid_x_soft):
+                for y in range(start_grid_y_soft, end_grid_y_soft):
+                    if (x, y) not in self.hard_obstacles:
+                        self.soft_obstacles.add((x, y))
 
     def add_soft_obstacle_path(self, path: list[tuple[int, int]]):
         """
