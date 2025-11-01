@@ -1,0 +1,20 @@
+from enum import Enum
+
+from pydantic import BaseModel
+
+
+class ErrorCode(str, Enum):
+    LOGIC_FLOATING_PORT = "LOGIC_FLOATING_PORT"
+    LOGIC_NO_POWER_LOOP = "LOGIC_NO_POWER_LOOP"
+    LOGIC_SHORT_CIRCUIT = "LOGIC_SHORT_CIRCUIT"
+    LOGIC_INVALID_PORT_NAME = "LOGIC_INVALID_PORT_NAME"
+    VISUAL_COMPONENT_OVERLAP = "VISUAL_COMPONENT_OVERLAP"
+    VISUAL_MINIMUM_SPACING = "VISUAL_MINIMUM_SPACING"
+    VISUAL_CONVENTION_VCC_HIGH = "VISUAL_CONVENTION_VCC_HIGH"
+    VISUAL_CONVENTION_GND_LOW = "VISUAL_CONVENTION_GND_LOW"
+
+
+class ValidationError(BaseModel):
+    error_code: ErrorCode
+    message: str
+    offending_components: list[str] = []

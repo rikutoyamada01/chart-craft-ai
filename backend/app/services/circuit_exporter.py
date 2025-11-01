@@ -4,6 +4,7 @@ from fastapi import HTTPException
 from app.models.circuit import CircuitData
 from app.models.file_content import FileContent
 from app.services.formatters.svg_formatter import SvgFormatter
+from app.services.validation.circuit_validator import CircuitValidator
 
 
 class CircuitExporter:
@@ -22,13 +23,22 @@ class CircuitExporter:
 
     def render_from_yaml(self, yaml_data: str, format: str = "svg") -> FileContent:
         """
-        Parses YAML data and renders a circuit diagram.
+        Parses YAML data, validates it, and renders a circuit diagram.
         """
         try:
             yaml_dict = yaml.safe_load(yaml_data)
             circuit_data = CircuitData.model_validate(yaml_dict)
         except (yaml.YAMLError, ValueError) as e:
             raise HTTPException(status_code=400, detail=f"Invalid YAML or data: {e}")
+
+        # Validate the parsed circuit data
+        validator = CircuitValidator(circuit_data)
+        errors = validator.validate()
+        if errors:
+            # Raise a single HTTPException with all validation errors
+            raise HTTPException(
+                status_code=400, detail=[err.model_dump() for err in errors]
+            )
 
         return self.render(circuit_data, format)
 

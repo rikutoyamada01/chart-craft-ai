@@ -24,70 +24,59 @@ class AiYamlGenerator:
             return self._get_default_yaml(prompt)
 
     def _get_realistic_test_circuit_yaml(self) -> str:
-        # NOTE: This circuit avoids using rotation on components because the current
-        # implementation of the renderers' get_port_position method does not
-        # dynamically calculate port positions based on the rotation angle.
-        # Using rotation would lead to incorrect wiring visuals.
         return """
 circuit:
-  name: "Realistic Transistor LED Switch"
+  name: "Optimized Transistor LED Switch"
   components:
     - id: "vcc"
       type: "battery"
       properties:
-        position: {x: 200, y: 50}
+        position: {x: 250, y: 50}
     - id: "gnd"
       type: "junction"
       properties:
-        position: {x: 200, y: 350}
+        position: {x: 250, y: 400}
+    - id: "j_in"
+      type: "junction"
+      properties:
+        position: {x: 100, y: 280}
     - id: "q1"
       type: "transistor_npn"
       properties:
-        position: {x: 300, y: 200}
+        position: {x: 250, y: 280}
+    - id: "r_base"
+      type: "resistor"
+      properties:
+        position: {x: 180, y: 280}
+        rotation: 0
     - id: "r_led"
       type: "resistor"
       properties:
-        position: {x: 400, y: 100}
+        position: {x: 250, y: 120}
         rotation: 90
     - id: "led1"
       type: "led"
       properties:
-        position: {x: 400, y: 200}
-    - id: "r_base"
-      type: "resistor"
-      properties:
-        position: {x: 200, y: 200}
-    - id: "j_in"
-      type: "junction"
-      properties:
-        position: {x: 100, y: 200}
-    - id: "j_vcc"
-      type: "junction"
-      properties:
-        position: {x: 400, y: 50}
-
+        position: {x: 250, y: 180}
+        rotation: 90
   connections:
-    # Power connections
-    - source: {component_id: "vcc", port: "positive"}
-      target: {component_id: "j_vcc"}
+    # Power Rails
     - source: {component_id: "vcc", port: "negative"}
       target: {component_id: "gnd"}
     - source: {component_id: "q1", port: "emitter"}
       target: {component_id: "gnd"}
-
-    # Input signal path
-    - source: {component_id: "j_in"}
-      target: {component_id: "r_base", port: "left"}
-    - source: {component_id: "r_base", port: "right"}
-      target: {component_id: "q1", port: "base"}
-
-    # Output LED path
-    - source: {component_id: "j_vcc"}
+    # Main Vertical Path
+    - source: {component_id: "vcc", port: "positive"}
       target: {component_id: "r_led", port: "left"}
     - source: {component_id: "r_led", port: "right"}
       target: {component_id: "led1", port: "left"}
     - source: {component_id: "led1", port: "right"}
       target: {component_id: "q1", port: "collector"}
+    # Input Horizontal Path
+    - source: {component_id: "j_in"}
+      target: {component_id: "r_base", port: "left"}
+    - source: {component_id: "r_base", port: "right"}
+      target: {component_id: "q1", port: "base"}
 """
 
     def _get_transistor_switch_yaml(self) -> str:
