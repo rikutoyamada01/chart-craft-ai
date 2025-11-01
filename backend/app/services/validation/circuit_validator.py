@@ -16,7 +16,6 @@ class CircuitValidator:
 
     def validate(self) -> list[ValidationError]:
         errors: list[ValidationError] = []
-        errors.extend(self._check_valid_port_names())
         errors.extend(self._check_component_overlaps())
         errors.extend(self._check_floating_ports())
         errors.extend(self._check_power_loops_and_shorts())
@@ -24,38 +23,37 @@ class CircuitValidator:
         errors.extend(self._check_layout_conventions())
         return errors
 
-    def _build_port_graph(self) -> dict[tuple[str, str], list[tuple[str, str]]]:
+    def _build_port_graph(self) -> dict[tuple[str, int], list[tuple[str, int]]]:
         graph = defaultdict(list)
-        all_possible_ports = [
-            "left",
-            "right",
-            "up",
-            "down",
-            "positive",
-            "negative",
-            "base",
-            "collector",
-            "emitter",
-        ]
 
         # Add external connections (wires)
         for conn in self.circuit.connections:
-            source_node = (conn.source.component_id, conn.source.port)
-            target_node = (conn.target.component_id, conn.target.port)
-            if conn.source.port and conn.target.port:
-                graph[source_node].append(target_node)
-                graph[target_node].append(source_node)
+            source_node = (conn.source.component_id, conn.source.port_index)
+            target_node = (conn.target.component_id, conn.target.port_index)
+            graph[source_node].append(target_node)
+            graph[target_node].append(source_node)
 
         # Efficiently handle bare junctions by first grouping ports by junction
         junctions = defaultdict(list)
         for conn in self.circuit.connections:
-            if conn.source.port and not conn.target.port:
+            # A junction is identified by a connection endpoint having a component_id but no port_index.
+            # The current model makes port_index required, but this logic anticipates a more flexible model.
+            source_is_port = (
+                hasattr(conn.source, "port_index")
+                and conn.source.port_index is not None
+            )
+            target_is_port = (
+                hasattr(conn.target, "port_index")
+                and conn.target.port_index is not None
+            )
+
+            if source_is_port and not target_is_port:
                 junctions[conn.target.component_id].append(
-                    (conn.source.component_id, conn.source.port)
+                    (conn.source.component_id, conn.source.port_index)
                 )
-            if conn.target.port and not conn.source.port:
+            elif target_is_port and not source_is_port:
                 junctions[conn.source.component_id].append(
-                    (conn.target.component_id, conn.target.port)
+                    (conn.target.component_id, conn.target.port_index)
                 )
 
         for junction_id in junctions:
@@ -73,10 +71,10 @@ class CircuitValidator:
                 continue
 
             ports_on_comp = []
-            for port_name in all_possible_ports:
+            for i in range(len(renderer.ports)):
                 try:
-                    renderer.get_port_position(comp, port_name)
-                    ports_on_comp.append(port_name)
+                    renderer.get_port_position(comp, i)
+                    ports_on_comp.append(i)
                 except ValueError:
                     continue
 
@@ -94,38 +92,17 @@ class CircuitValidator:
             elif comp.type == "transistor_npn":
                 # For validation, model a path between collector and emitter.
                 # This doesn't account for the base signal, but allows loop checking.
-                node1 = (comp.id, "collector")
-                node2 = (comp.id, "emitter")
-                graph[node1].append(node2)
-                graph[node2].append(node1)
-        return graph
-
-    def _check_valid_port_names(self) -> list[ValidationError]:
-        errors: list[ValidationError] = []
-        for conn in self.circuit.connections:
-            for conn_point in [conn.source, conn.target]:
-                if not conn_point.port:
-                    continue
-
-                component = self.components_by_id.get(conn_point.component_id)
-                if not component:
-                    continue
-
-                renderer = svg_component_renderer_factory.get_renderer(component.type)
-                if not renderer:
-                    continue
-
                 try:
-                    renderer.get_port_position(component, conn_point.port)
+                    collector_index = renderer.ports.index("collector")
+                    emitter_index = renderer.ports.index("emitter")
+                    node1 = (comp.id, collector_index)
+                    node2 = (comp.id, emitter_index)
+                    graph[node1].append(node2)
+                    graph[node2].append(node1)
                 except ValueError:
-                    errors.append(
-                        ValidationError(
-                            error_code=ErrorCode.LOGIC_INVALID_PORT_NAME,
-                            message=f"Component '{component.id}' of type '{component.type}' has no port named '{conn_point.port}'.",
-                            offending_components=[component.id],
-                        )
-                    )
-        return errors
+                    # This case would be rare, but handles missing ports gracefully
+                    continue
+        return graph
 
     def _check_component_overlaps(self) -> list[ValidationError]:
         errors: list[ValidationError] = []
@@ -186,24 +163,10 @@ class CircuitValidator:
 
     def _check_floating_ports(self) -> list[ValidationError]:
         errors: list[ValidationError] = []
-        connected_ports: set[tuple[str, str]] = set()
+        connected_ports: set[tuple[str, int]] = set()
         for conn in self.circuit.connections:
-            if conn.source.port:
-                connected_ports.add((conn.source.component_id, conn.source.port))
-            if conn.target.port:
-                connected_ports.add((conn.target.component_id, conn.target.port))
-
-        all_possible_ports = [
-            "left",
-            "right",
-            "up",
-            "down",
-            "positive",
-            "negative",
-            "base",
-            "collector",
-            "emitter",
-        ]
+            connected_ports.add((conn.source.component_id, conn.source.port_index))
+            connected_ports.add((conn.target.component_id, conn.target.port_index))
 
         for comp in self.circuit.components:
             if comp.type == "junction":
@@ -213,14 +176,14 @@ class CircuitValidator:
             if not renderer:
                 continue
 
-            for port_name in all_possible_ports:
+            for i in range(len(renderer.ports)):
                 try:
-                    renderer.get_port_position(comp, port_name)
-                    if (comp.id, port_name) not in connected_ports:
+                    renderer.get_port_position(comp, i)
+                    if (comp.id, i) not in connected_ports:
                         errors.append(
                             ValidationError(
                                 error_code=ErrorCode.LOGIC_FLOATING_PORT,
-                                message=f"Port '{port_name}' of component '{comp.id}' is not connected.",
+                                message=f"Port index {i} of component '{comp.id}' is not connected.",
                                 offending_components=[comp.id],
                             )
                         )
@@ -238,8 +201,18 @@ class CircuitValidator:
             return []
 
         for source in power_sources:
-            start_node = (source.id, "positive")
-            end_node = (source.id, "negative")
+            renderer = svg_component_renderer_factory.get_renderer(source.type)
+            if not renderer:
+                continue
+            try:
+                positive_index = renderer.ports.index("positive")
+                negative_index = renderer.ports.index("negative")
+            except ValueError:
+                # If a battery renderer doesn't define these ports, skip it.
+                continue
+
+            start_node = (source.id, positive_index)
+            end_node = (source.id, negative_index)
 
             q = [(start_node, [source.id])]
             visited = {start_node}

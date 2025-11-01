@@ -74,7 +74,7 @@ class ComponentProperties(BaseModel):
 
 class ConnectionEndpoint(BaseModel):
     component_id: str
-    port: str | None = None
+    port_index: int
     terminal: str | None = None
 
 

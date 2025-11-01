@@ -39,22 +39,9 @@ class SvgFormatter(FileFormatter):
         for component in data.circuit.components:
             renderer = svg_component_renderer_factory.get_renderer(component.type)
             if renderer:
-                # Assuming a component can have multiple ports, we need to iterate
-                # For simplicity, let's assume 'left', 'right', 'up', 'down' ports exist if applicable
-                # This part might need more sophisticated logic based on actual port definitions
-                for port_name in [
-                    "left",
-                    "right",
-                    "up",
-                    "down",
-                    "positive",
-                    "negative",
-                    "base",
-                    "collector",
-                    "emitter",
-                ]:
+                for i in range(len(renderer.ports)):
                     try:
-                        port_pos, _ = renderer.get_port_position(component, port_name)
+                        port_pos, _ = renderer.get_port_position(component, i)
                         if port_pos:
                             all_port_grid_positions.add(
                                 (
@@ -62,7 +49,7 @@ class SvgFormatter(FileFormatter):
                                     port_pos.y // current_grid_size,
                                 )
                             )
-                    except ValueError:  # Port might not exist for this component
+                    except ValueError:
                         pass
 
         grid = Grid(500, 500, current_grid_size, all_port_grid_positions)
@@ -113,16 +100,16 @@ class SvgFormatter(FileFormatter):
                 start_direction = ""
                 end_direction = ""
 
-                if from_renderer and connection.source.port:
+                if from_renderer:
                     start_pos_raw, start_direction = from_renderer.get_port_position(
-                        from_comp, connection.source.port
+                        from_comp, connection.source.port_index
                     )
                 elif from_comp.properties and from_comp.properties.position:
                     start_pos_raw = from_comp.properties.position
 
-                if to_renderer and connection.target.port:
+                if to_renderer:
                     end_pos_raw, end_direction = to_renderer.get_port_position(
-                        to_comp, connection.target.port
+                        to_comp, connection.target.port_index
                     )
                 elif to_comp.properties and to_comp.properties.position:
                     end_pos_raw = to_comp.properties.position
@@ -143,7 +130,7 @@ class SvgFormatter(FileFormatter):
                 if start_pos and end_pos:
                     logger.debug("-" * 20)
                     logger.debug(
-                        f"Routing connection: {from_comp.id}:{connection.source.port} -> {to_comp.id}:{connection.target.port}"
+                        f"Routing connection: {from_comp.id}:{connection.source.port_index} -> {to_comp.id}:{connection.target.port_index}"
                     )
                     logger.debug(
                         f"Start: {start_pos}, Direction: {final_start_direction}"

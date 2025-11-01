@@ -5,6 +5,8 @@ from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class JunctionSvgRenderer(SvgComponentRenderer):
+    ports = ["center"]
+
     def render(self, dwg: Drawing, component: Component) -> None:
         """
         Renders a junction component as a small circle, applying rotation if specified.
@@ -25,15 +27,18 @@ class JunctionSvgRenderer(SvgComponentRenderer):
             dwg.add(group)
 
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the junction.
         For a junction, the port position is its own position.
         """
-        if component.properties and component.properties.position:
-            return component.properties.position, "up"
-        raise ValueError(f"Junction {component.id} has no position defined.")
+        if not component.properties or not component.properties.position:
+            raise ValueError(f"Junction {component.id} has no position defined.")
+
+        # For a junction, the port name is always 'center' and its position is the component's position.
+        self.get_port_name_by_index(port_index)
+        return component.properties.position, "center"
 
     def get_bounding_box(self, component: Component) -> tuple[int, int]:
         return 4, 4

@@ -5,6 +5,8 @@ from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class TransistorNpnSvgRenderer(SvgComponentRenderer):
+    ports = ["base", "collector", "emitter"]
+
     def render(self, dwg: Drawing, component: Component) -> None:
         """
         Renders an NPN transistor component, applying rotation if specified.
@@ -38,7 +40,7 @@ class TransistorNpnSvgRenderer(SvgComponentRenderer):
             dwg.add(group)
 
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the NPN transistor.
@@ -47,6 +49,7 @@ class TransistorNpnSvgRenderer(SvgComponentRenderer):
         if not component.properties or not component.properties.position:
             raise ValueError(f"Transistor {component.id} has no position defined.")
 
+        port_name = self.get_port_name_by_index(port_index)
         pos = component.properties.position
         if port_name == "base":
             return Position(x=pos.x - 20, y=pos.y), "left"

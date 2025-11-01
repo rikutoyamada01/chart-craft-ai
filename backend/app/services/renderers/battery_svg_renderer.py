@@ -5,6 +5,8 @@ from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class BatterySvgRenderer(SvgComponentRenderer):
+    ports = ["positive", "negative"]
+
     def render(self, dwg: Drawing, component: Component) -> None:
         """
         Renders a battery component, applying rotation if specified.
@@ -29,7 +31,7 @@ class BatterySvgRenderer(SvgComponentRenderer):
             dwg.add(group)
 
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the battery.
@@ -38,6 +40,7 @@ class BatterySvgRenderer(SvgComponentRenderer):
         if not component.properties or not component.properties.position:
             raise ValueError(f"Battery {component.id} has no position defined.")
 
+        port_name = self.get_port_name_by_index(port_index)
         pos = component.properties.position
         if port_name == "positive":
             return Position(x=pos.x - 15, y=pos.y), "left"

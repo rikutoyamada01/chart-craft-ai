@@ -6,6 +6,13 @@ from app.models.circuit import Component, Position
 
 
 class SvgComponentRenderer(ABC):
+    ports: list[str] = []
+
+    def get_port_name_by_index(self, port_index: int) -> str:
+        if 0 <= port_index < len(self.ports):
+            return self.ports[port_index]
+        raise ValueError(f"Invalid port index: {port_index}")
+
     @abstractmethod
     def render(self, dwg: Drawing, component: Component) -> None:
         """
@@ -18,13 +25,13 @@ class SvgComponentRenderer(ABC):
 
     @abstractmethod
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position and egress direction of a specific port.
 
         :param component: The component.
-        :param port_name: The name of the port.
+        :param port_index: The index of the port.
         :return: A tuple containing the position and direction of the port.
         """
 
@@ -36,5 +43,4 @@ class SvgComponentRenderer(ABC):
         :param component: The component.
         :return: A tuple containing the width and height of the bounding box.
         """
-        pass
         pass

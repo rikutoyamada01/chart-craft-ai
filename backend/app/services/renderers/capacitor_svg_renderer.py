@@ -5,6 +5,8 @@ from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class CapacitorSvgRenderer(SvgComponentRenderer):
+    ports = ["left", "right"]
+
     def render(self, dwg: Drawing, component: Component) -> None:
         """
         Renders a capacitor component.
@@ -27,7 +29,7 @@ class CapacitorSvgRenderer(SvgComponentRenderer):
             dwg.add(group)
 
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the capacitor.
@@ -35,6 +37,7 @@ class CapacitorSvgRenderer(SvgComponentRenderer):
         if not component.properties or not component.properties.position:
             raise ValueError(f"Capacitor {component.id} has no position defined.")
 
+        port_name = self.get_port_name_by_index(port_index)
         pos = component.properties.position
         if port_name == "left":
             return Position(x=pos.x - 15, y=pos.y), "left"

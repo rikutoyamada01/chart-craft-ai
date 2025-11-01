@@ -5,6 +5,8 @@ from app.services.renderers.svg_component_renderer import SvgComponentRenderer
 
 
 class ResistorSvgRenderer(SvgComponentRenderer):
+    ports = ["left", "right"]
+
     def render(self, dwg: Drawing, component: Component) -> None:
         """
         Renders a resistor component as a rectangle, applying rotation if specified.
@@ -35,7 +37,7 @@ class ResistorSvgRenderer(SvgComponentRenderer):
             dwg.add(group)
 
     def get_port_position(
-        self, component: Component, port_name: str
+        self, component: Component, port_index: int
     ) -> tuple[Position, str]:
         """
         Returns the absolute position of a specific port on the resistor.
@@ -44,12 +46,14 @@ class ResistorSvgRenderer(SvgComponentRenderer):
         if not component.properties or not component.properties.position:
             raise ValueError(f"Resistor {component.id} has no position defined.")
 
+        port_name = self.get_port_name_by_index(port_index)
         pos = component.properties.position
         if port_name == "left":
             return Position(x=pos.x - 25, y=pos.y), "left"
         elif port_name == "right":
             return Position(x=pos.x + 25, y=pos.y), "right"
         else:
+            # This case should not be reachable due to the check in get_port_name_by_index
             raise ValueError(f"Unknown port '{port_name}' for resistor {component.id}")
 
     def get_bounding_box(self, component: Component) -> tuple[int, int]:

@@ -61,22 +61,22 @@ circuit:
         rotation: 90
   connections:
     # Power Rails
-    - source: {component_id: "vcc", port: "negative"}
-      target: {component_id: "gnd"}
-    - source: {component_id: "q1", port: "emitter"}
-      target: {component_id: "gnd"}
+    - source: {component_id: "vcc", port_index: 1}
+      target: {component_id: "gnd", port_index: 0}
+    - source: {component_id: "q1", port_index: 2}
+      target: {component_id: "gnd", port_index: 0}
     # Main Vertical Path
-    - source: {component_id: "vcc", port: "positive"}
-      target: {component_id: "r_led", port: "left"}
-    - source: {component_id: "r_led", port: "right"}
-      target: {component_id: "led1", port: "left"}
-    - source: {component_id: "led1", port: "right"}
-      target: {component_id: "q1", port: "collector"}
+    - source: {component_id: "vcc", port_index: 0}
+      target: {component_id: "r_led", port_index: 0}
+    - source: {component_id: "r_led", port_index: 1}
+      target: {component_id: "led1", port_index: 0}
+    - source: {component_id: "led1", port_index: 1}
+      target: {component_id: "q1", port_index: 1}
     # Input Horizontal Path
-    - source: {component_id: "j_in"}
-      target: {component_id: "r_base", port: "left"}
-    - source: {component_id: "r_base", port: "right"}
-      target: {component_id: "q1", port: "base"}
+    - source: {component_id: "j_in", port_index: 0}
+      target: {component_id: "r_base", port_index: 0}
+    - source: {component_id: "r_base", port_index: 1}
+      target: {component_id: "q1", port_index: 0}
 """
 
     def _get_transistor_switch_yaml(self) -> str:
@@ -109,16 +109,16 @@ circuit:
       properties:
         position: {x: 200, y: 350}
   connections:
-    - source: {component_id: "batt1", port: "positive"}
-      target: {component_id: "r1", port: "left"}
-    - source: {component_id: "r1", port: "right"}
-      target: {component_id: "led1", port: "left"}
-    - source: {component_id: "led1", port: "right"}
-      target: {component_id: "q1", port: "collector"}
-    - source: {component_id: "batt1", port: "negative"}
-      target: {component_id: "q1", port: "base"}
-    - source: {component_id: "q1", port: "emitter"}
-      target: {component_id: "gnd"}
+    - source: {component_id: "batt1", port_index: 0}
+      target: {component_id: "r1", port_index: 0}
+    - source: {component_id: "r1", port_index: 1}
+      target: {component_id: "led1", port_index: 0}
+    - source: {component_id: "led1", port_index: 1}
+      target: {component_id: "q1", port_index: 1}
+    - source: {component_id: "batt1", port_index: 1}
+      target: {component_id: "q1", port_index: 0}
+    - source: {component_id: "q1", port_index: 2}
+      target: {component_id: "gnd", port_index: 0}
 """
 
     def _get_resistor_yaml(self) -> str:
@@ -138,8 +138,8 @@ circuit:
         position: { x: 200, y: 100 }
         rotation: 0
   connections:
-    - source: { component_id: "R1", port: "right" }
-      target: { component_id: "J1" }
+    - source: { component_id: "R1", port_index: 1 }
+      target: { component_id: "J1", port_index: 0 }
 """
 
     def _get_resistor_led_yaml(self) -> str:
@@ -159,8 +159,8 @@ circuit:
         position: { x: 200, y: 100 }
         rotation: 0
   connections:
-    - source: { component_id: "R1", port: "right" }
-      target: { component_id: "D1", port: "left" }
+    - source: { component_id: "R1", port_index: 1 }
+      target: { component_id: "D1", port_index: 0 }
 """
 
     def _get_battery_yaml(self) -> str:
