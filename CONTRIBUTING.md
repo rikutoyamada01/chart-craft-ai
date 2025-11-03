@@ -1,6 +1,6 @@
-# Contributing to Chart Craft AI
+# Contributing to Circuit Craft AI
 
-We welcome contributions to Chart Craft AI! By following these guidelines, you can help us maintain a high-quality codebase and a smooth development process.
+We welcome contributions to Cuircuit Craft AI! By following these guidelines, you can help us maintain a high-quality codebase and a smooth development process.
 
 ## Table of Contents
 

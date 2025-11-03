@@ -1,4 +1,4 @@
-import { Box, Button, Code, Heading, Text, Textarea } from "@chakra-ui/react"
+import { Box, Button, Heading, Image, Text, Textarea } from "@chakra-ui/react"
 import { useState } from "react"
 import useCustomToast from "../hooks/useCustomToast"
 
@@ -10,17 +10,20 @@ export default function HomePage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (!prompt.trim()) {
+      showErrorToast("プロンプトを入力してください。")
+      return
+    }
+
     setIsLoading(true)
     setResult("")
 
     try {
       const response = await fetch(
-        "http://localhost:8000/api/v1/circuits/generate",
+        "http://localhost:8000/api/v1/circuits/generate-and-render",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: prompt }),
         },
       )
@@ -29,8 +32,10 @@ export default function HomePage() {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
-      const data = await response.json()
-      setResult(data.yaml_data)
+      const svg = await response.text()
+      console.log("SVG response text:", svg)
+      const svgDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`
+      setResult(svgDataUrl)
     } catch (error) {
       console.error("API呼び出し中にエラーが発生しました:", error)
       showErrorToast("回路図の生成に失敗しました。")
@@ -49,7 +54,7 @@ export default function HomePage() {
       p={8}
     >
       <Heading as="h1" size="xl" color="gray.800" mb={6}>
-        Chat Craft AI
+        Circuit Craft AI
       </Heading>
       <Text fontSize="lg" color="gray.600" mb={8}>
         作りたい回路を文章で説明してください
@@ -96,19 +101,10 @@ export default function HomePage() {
           boxShadow="md"
         >
           <Heading as="h2" size="lg" color="gray.800" mb={4}>
-            生成結果 (YAML)
+            生成結果 (SVG)
           </Heading>
-          <Box
-            as="pre"
-            bg="gray.900"
-            color="white"
-            p={4}
-            borderRadius="md"
-            overflowX="auto"
-          >
-            <Code bg="transparent" color="white">
-              {result}
-            </Code>
+          <Box border="1px" borderColor="gray.200" borderRadius="md" p={4}>
+            <Image src={result} />
           </Box>
         </Box>
       )}

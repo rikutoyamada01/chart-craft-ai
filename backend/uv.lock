@@ -65,6 +65,7 @@ dependencies = [
     { name = "python-multipart" },
     { name = "sentry-sdk", extra = ["fastapi"] },
     { name = "sqlmodel" },
+    { name = "svgwrite" },
     { name = "tenacity" },
 ]
 
@@ -95,6 +96,7 @@ requires-dist = [
     { name = "python-multipart", specifier = ">=0.0.7,<1.0.0" },
     { name = "sentry-sdk", extras = ["fastapi"], specifier = ">=1.40.6,<2.0.0" },
     { name = "sqlmodel", specifier = ">=0.0.21,<1.0.0" },
+    { name = "svgwrite", specifier = ">=1.4.3,<2.0.0" },
     { name = "tenacity", specifier = ">=8.2.3,<9.0.0" },
 ]
 
@@ -1355,6 +1357,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/42/b4/e25c3b688ef703d85e55017c6edd0cbf38e5770ab748234363d54ff0251a/starlette-0.38.6.tar.gz", hash = "sha256:863a1588f5574e70a821dadefb41e4881ea451a47a3cd1b4df359d4ffefe5ead", size = 2569491, upload-time = "2024-09-22T17:01:45.422Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/9c/93f7bc03ff03199074e81974cc148908ead60dcf189f68ba1761a0ee35cf/starlette-0.38.6-py3-none-any.whl", hash = "sha256:4517a1409e2e73ee4951214ba012052b9e16f60e90d73cfb06192c19203bbb05", size = 71451, upload-time = "2024-09-22T17:01:43.076Z" },
+]
+
+[[package]]
+name = "svgwrite"
+version = "1.4.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/16/c1/263d4e93b543390d86d8eb4fc23d9ce8a8d6efd146f9427364109004fa9b/svgwrite-1.4.3.zip", hash = "sha256:a8fbdfd4443302a6619a7f76bc937fc683daf2628d9b737c891ec08b8ce524c3", size = 189516, upload-time = "2022-07-14T14:05:26.107Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/84/15/640e399579024a6875918839454025bb1d5f850bb70d96a11eabb644d11c/svgwrite-1.4.3-py3-none-any.whl", hash = "sha256:bb6b2b5450f1edbfa597d924f9ac2dd099e625562e492021d7dd614f65f8a22d", size = 67122, upload-time = "2022-07-14T14:05:24.459Z" },
 ]
 
 [[package]]

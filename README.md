@@ -1,8 +1,8 @@
-# ChartCraft AI Project
+# Circuit Craft AI Project
 
 ## プロジェクト概要
 
-ChartCraft AIは、テキストプロンプトから回路図のYAML定義を生成するアプリケーションです。
+Circuit Craft AIは、テキストプロンプトから回路図のYAML定義を生成するアプリケーションです。
 バックエンドはFastAPI、フロントエンドはReact (Chakra UI) で構築されています。
 
 ## 開発の始め方
@@ -12,8 +12,8 @@ ChartCraft AIは、テキストプロンプトから回路図のYAML定義を生
 ### 1. リポジリトのクローン
 
 ```bash
-git clone https://github.com/rikutoyamada01/chart-craft-ai
-cd chart-craft-ai
+git clone https://github.com/rikutoyamada01/circuit-craft-ai
+cd circuit-craft-ai
 ```
 
 ### 2. 環境設定ファイル (`.env`) の準備
