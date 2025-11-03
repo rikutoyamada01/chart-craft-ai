@@ -54,7 +54,7 @@ export default function HomePage() {
       p={8}
     >
       <Heading as="h1" size="xl" color="gray.800" mb={6}>
-        Chat Craft AI
+        Circuit Craft AI
       </Heading>
       <Text fontSize="lg" color="gray.600" mb={8}>
         作りたい回路を文章で説明してください
