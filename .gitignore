@@ -6,3 +6,5 @@ node_modules/
 /playwright/.cache/
 logs/
 backend/tests/models/
+/.env
+.env
