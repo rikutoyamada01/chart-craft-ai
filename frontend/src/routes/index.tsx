@@ -1,5 +1,5 @@
 import { Box, Button, Heading, Image, Text, Textarea } from "@chakra-ui/react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import useCustomToast from "../hooks/useCustomToast"
 
 export default function HomePage() {
@@ -7,6 +7,15 @@ export default function HomePage() {
   const [result, setResult] = useState<string>("")
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { showErrorToast } = useCustomToast()
+
+  useEffect(() => {
+    // Clean up the object URL when the component unmounts or the result changes
+    return () => {
+      if (result) {
+        URL.revokeObjectURL(result)
+      }
+    }
+  }, [result])
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -33,9 +42,9 @@ export default function HomePage() {
       }
 
       const svg = await response.text()
-      console.log("SVG response text:", svg)
-      const svgDataUrl = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`
-      setResult(svgDataUrl)
+      const blob = new Blob([svg], { type: "image/svg+xml" })
+      const url = URL.createObjectURL(blob)
+      setResult(url)
     } catch (error) {
       console.error("API呼び出し中にエラーが発生しました:", error)
       showErrorToast("回路図の生成に失敗しました。")
