@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from fastapi.responses import Response
 from sqlmodel import Session
 
@@ -8,12 +8,11 @@ from app import crud
 from app.api import deps
 from app.models.circuit import (
     CircuitCreate,
-    CircuitGenerateFromPromptRequest,
     CircuitPublic,
     CircuitRenderRequest,
     CircuitUpdate,
 )
-from app.services.ai_yaml_generator import ai_yaml_generator
+from app.services.ai_generation.factory import generator_factory
 from app.services.circuit_exporter import circuit_exporter
 
 router = APIRouter()
@@ -110,18 +109,37 @@ def render_saved_circuit(
 
 
 @router.post("/generate-and-render", response_class=Response)
-def generate_and_render_circuit(
-    *, request: CircuitGenerateFromPromptRequest, format: str = "svg"
+async def generate_and_render_circuit(
+    *,
+    generator_name: str = Form(...),
+    prompt: str = Form(None),
+    image: UploadFile = File(None),
+    format: str = Form("svg"),
 ) -> Response:
     """
-    Generates a YAML from a prompt, renders it, and returns the image.
+    Generates a YAML from a prompt or an image, renders it, and returns the image.
     """
-    # Step 1: Generate YAML from prompt
-    generated_yaml = ai_yaml_generator.generate(prompt=request.prompt)
+    try:
+        generator = generator_factory.get_generator(generator_name)
 
-    # Step 2: Render image from generated YAML
-    file_content = circuit_exporter.render_from_yaml(
-        yaml_data=generated_yaml, format=format
-    )
+        if prompt:
+            input_data = prompt
+        elif image:
+            input_data = await image.read()
+        else:
+            raise HTTPException(
+                status_code=400, detail="Either 'prompt' or 'image' must be provided."
+            )
 
-    return Response(content=file_content.content, media_type=file_content.mime_type)
+        generated_yaml = generator.generate(input_data)
+
+        file_content = circuit_exporter.render_from_yaml(
+            yaml_data=generated_yaml, format=format
+        )
+
+        return Response(content=file_content.content, media_type=file_content.mime_type)
+
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {e}")
