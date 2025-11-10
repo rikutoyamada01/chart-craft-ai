@@ -42,6 +42,7 @@ circuit:
 Now, analyze the user-provided image and generate the corresponding YAML code block.
 """
 
+
 def get_prompt_for_text_generation(user_prompt: str) -> str:
     # This is a placeholder for the text generation prompt
     return f"""
@@ -65,17 +66,17 @@ circuit:
       type: "resistor"
       properties:
         resistance: "1k"
-        position: { x: 50, y: 50 }
+        position: {{ x: 50, y: 50 }}
     - id: "D1"
       type: "led"
       properties:
         color: "red"
-        position: { x: 150, y: 50 }
+        position: {{ x: 150, y: 50 }}
     - id: "V1"
       type: "voltage_source"
       properties:
         voltage: "5V"
-        position: { x: 100, y: 150 }
+        position: {{ x: 100, y: 150 }}
   connections:
     - from: "V1.+"
       to: "R1.1"

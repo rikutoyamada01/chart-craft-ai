@@ -1,6 +1,5 @@
-import base64
-
 import google.generativeai as genai
+
 from app.core.config import settings
 
 from .base import YamlGenerator
@@ -28,12 +27,12 @@ class ImageToYamlGeminiGenerator(YamlGenerator):
         # Let's try to create an image part from bytes directly
         # The SDK likely handles the conversion.
         image_part = {
-            'mime_type': 'image/png', # Assuming PNG, might need to be more flexible
-            'data': input_data
+            "mime_type": "image/png",  # Assuming PNG, might need to be more flexible
+            "data": input_data,
         }
 
         prompt = get_prompt_for_image_generation()
-        
+
         # The content for gemini-pro-vision should be a list of parts
         response = self.model.generate_content([prompt, image_part])
 

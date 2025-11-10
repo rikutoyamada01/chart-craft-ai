@@ -1,8 +1,8 @@
 import google.generativeai as genai
+
 from app.core.config import settings
 
 from .base import YamlGenerator
-from .prompt import get_prompt_for_text_generation
 
 YAML_SPEC = """
 # Circuit Diagram YAML Specification
@@ -116,7 +116,7 @@ Please output only the YAML content, without any additional explanations or mark
 """
         try:
             response = self.model.generate_content([system_prompt, input_data])
-            
+
             # Extract YAML from the response
             text_response = response.text
             if "```yaml" in text_response:
