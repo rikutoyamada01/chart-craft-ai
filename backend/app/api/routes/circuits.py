@@ -111,7 +111,7 @@ def render_saved_circuit(
 @router.post("/generate-and-render", response_class=Response)
 async def generate_and_render_circuit(
     *,
-    generator_name: str = Form(...),
+    generator_name: str = Form("text_gemini_pro_v1"),  # Default to Gemini
     prompt: str = Form(None),
     image: UploadFile = File(None),
     format: str = Form("svg"),
@@ -120,6 +120,8 @@ async def generate_and_render_circuit(
     Generates a YAML from a prompt or an image, renders it, and returns the image.
     """
     try:
+        # The generator_name is now defaulted in the function signature.
+        # This simplifies the logic as we can directly use it.
         generator = generator_factory.get_generator(generator_name)
 
         if prompt:
