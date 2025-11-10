@@ -28,12 +28,15 @@ export default function HomePage() {
     setResult("")
 
     try {
+      const formData = new FormData()
+      formData.append("generator_name", "text_openai_v1") // Or make this selectable
+      formData.append("prompt", prompt)
+
       const response = await fetch(
         "http://localhost:8000/api/v1/circuits/generate-and-render",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ prompt: prompt }),
+          body: formData,
         },
       )
 
