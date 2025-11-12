@@ -8,7 +8,7 @@ The YAML format should follow this structure:
 - A top-level `circuit` object.
 - A `name` for the circuit.
 - A list of `components`, each with an `id`, `type`, and `properties`.
-- A list of `connections`, each specifying the `from` and `to` component IDs and ports.
+- A list of `connections`, each specifying the `source` and `target` component IDs, `port_index`, and optional `terminal` or `port`.
 
 Example of a simple resistor-LED circuit:
 ```yaml
@@ -31,12 +31,24 @@ circuit:
         voltage: "5V"
         position: { x: 100, y: 150 }
   connections:
-    - from: "V1.+"
-      to: "R1.1"
-    - from: "R1.2"
-      to: "D1.A"
-    - from: "D1.C"
-      to: "V1.-"
+    - source:
+        component_id: "V1"
+        port_index: 0 # Assuming 0 is positive terminal
+      target:
+        component_id: "R1"
+        port_index: 0 # Assuming 0 is first terminal
+    - source:
+        component_id: "R1"
+        port_index: 1 # Assuming 1 is second terminal
+      target:
+        component_id: "D1"
+        port_index: 0 # Assuming 0 is anode
+    - source:
+        component_id: "D1"
+        port_index: 1 # Assuming 1 is cathode
+      target:
+        component_id: "V1"
+        port_index: 1 # Assuming 1 is negative terminal
 ```
 
 Now, analyze the user-provided image and generate the corresponding YAML code block.

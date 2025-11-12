@@ -14,7 +14,7 @@ class ImageToYamlGeminiGenerator(YamlGenerator):
         if not self.api_key:
             raise ValueError("Google API key is not configured.")
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel("gemini-pro-vision")
+        self.model = genai.GenerativeModel("models/gemini-2.5-flash-image")
 
     def generate(self, input_data: bytes) -> str:
         """

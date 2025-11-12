@@ -81,10 +81,12 @@ Defines the connections between components in the circuit. This is a list of obj
 
 *   `source` (object): The starting point of the connection.
     *   `component_id` (string): The `id` of the source component.
+    *   `port_index` (integer, required): The index of the port on the component.
     *   `terminal` (string, optional): A specific terminal name of the component (e.g., `positive`, `negative`, `anode`, `cathode`, `any`).
     *   `port` (string, optional): The external port name of a module.
 *   `target` (object): The end point of the connection.
     *   `component_id` (string): The `id` of the target component.
+    *   `port_index` (integer, required): The index of the port on the component.
     *   `terminal` (string, optional): A specific terminal name of the component.
     *   `port` (string, optional): The external port name of a module.
 """
@@ -100,7 +102,7 @@ class TextToYamlGeminiGenerator(YamlGenerator):
         if not self.api_key:
             raise ValueError("Google API key is not configured.")
         genai.configure(api_key=self.api_key)
-        self.model = genai.GenerativeModel("gemini-pro")
+        self.model = genai.GenerativeModel("models/gemini-pro-latest")
 
     def generate(self, input_data: str) -> str:
         """

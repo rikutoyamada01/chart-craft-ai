@@ -9,13 +9,19 @@ export default function HomePage() {
   const { showErrorToast } = useCustomToast()
 
   useEffect(() => {
-    // Clean up the object URL when the component unmounts or the result changes
-    return () => {
-      if (result) {
-        URL.revokeObjectURL(result)
-      }
+    let objectUrl: string | null = null;
+
+    if (result) {
+      objectUrl = result;
     }
-  }, [result])
+
+    // Clean up the object URL when the component unmounts
+    return () => {
+      if (objectUrl) {
+        URL.revokeObjectURL(objectUrl);
+      }
+    };
+  }, [result]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -29,11 +35,12 @@ export default function HomePage() {
 
     try {
       const formData = new FormData()
-      formData.append("generator_name", "text_openai_v1") // Or make this selectable
+      formData.append("generator_name", "text_gemini_pro_v1") // Or make this selectable
       formData.append("prompt", prompt)
 
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
       const response = await fetch(
-        "http://localhost:8000/api/v1/circuits/generate-and-render",
+        `${apiUrl}/api/v1/circuits/generate-and-render`,
         {
           method: "POST",
           body: formData,
@@ -41,7 +48,9 @@ export default function HomePage() {
       )
 
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        const errorData = await response.json().catch(() => null); // Try to parse error response
+        const errorMessage = errorData?.detail || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
       }
 
       const svg = await response.text()
@@ -49,8 +58,9 @@ export default function HomePage() {
       const url = URL.createObjectURL(blob)
       setResult(url)
     } catch (error) {
-      console.error("API呼び出し中にエラーが発生しました:", error)
-      showErrorToast("回路図の生成に失敗しました。")
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      console.error("API call failed:", errorMessage);
+      showErrorToast(errorMessage);
     } finally {
       setIsLoading(false)
     }
